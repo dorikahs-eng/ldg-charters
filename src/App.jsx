@@ -529,7 +529,44 @@ function LDGChartersApp() {
   const startBook = (preBoat=null) => { if(preBoat)setBoat(preBoat); setStep(1); setView("book"); setTimeout(()=>window.scrollTo(0,0),0); };
   const reset = () => { setView("home"); setStep(1); setBoat(null); setDur(null); setDest(null); setDate(null); setTime(null); setInfo({name:"",email:"",phone:""}); setHost({name:"",email:""}); setCSig(null); setPayOpt(null); setSaved(false); setSaveErr(""); };
 
-  // ── Save booking to Firestore ──
+  // EmailJS config
+  const EMAILJS_SERVICE_ID = "service_0se585c";
+  const EMAILJS_PUBLIC_KEY = "jsEvKIVZ10ZQqt-4r";
+  const TEMPLATE_CUSTOMER  = "template_t4td6qc";
+  const TEMPLATE_ADMIN     = "template_swbrijc";
+
+  const sendEmails = async (chosenPayOpt) => {
+    const params = {
+      customer_name:  info.name,
+      customer_email: info.email,
+      customer_phone: info.phone,
+      vessel:         boat.name,
+      charter_date:   fmtDate(date),
+      start_time:     time,
+      end_time:       endT,
+      duration:       `${dur.label} (${dur.hours} hrs)`,
+      destination:    dest.name,
+      total_price:    `$${total.toLocaleString()}.00`,
+      balance:        `$${balance.toLocaleString()}.00`,
+      payment_option: chosenPayOpt === "full" ? "Full Payment" : "Deposit Only ($500)",
+    };
+    try {
+      await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ service_id: EMAILJS_SERVICE_ID, template_id: TEMPLATE_CUSTOMER, user_id: EMAILJS_PUBLIC_KEY, template_params: params }),
+      });
+      await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ service_id: EMAILJS_SERVICE_ID, template_id: TEMPLATE_ADMIN, user_id: EMAILJS_PUBLIC_KEY, template_params: params }),
+      });
+    } catch (e) {
+      console.error("Email error:", e);
+    }
+  };
+
+  // Save booking to Firestore + send emails
   const saveBooking = async (chosenPayOpt) => {
     setSaving(true); setSaveErr("");
     try {
@@ -557,10 +594,11 @@ function LDGChartersApp() {
         adminNotes:      "",
         createdAt:       serverTimestamp(),
       });
+      await sendEmails(chosenPayOpt);
       setSaved(true);
     } catch (e) {
       console.error(e);
-      setSaveErr("Could not save booking. Please call 708‑846‑3132.");
+      setSaveErr("Could not save booking. Please call 708-846-3132.");
     }
     setSaving(false);
   };
