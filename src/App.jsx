@@ -706,7 +706,7 @@ function LDGChartersApp() {
         <div style={{marginTop:8,fontSize:10,color:"rgba(255,255,255,.15)"}}>{new Date().getFullYear()} LDG Charters · <span style={{cursor:"pointer",textDecoration:"underline"}} onClick={()=>window.location.hash="admin"}>Admin</span></div>
       </footer>
     </div>
-    </>;
+    </>);
 
   // BOOKING FLOW
   return(
