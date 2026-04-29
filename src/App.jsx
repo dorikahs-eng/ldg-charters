@@ -182,6 +182,150 @@ function WaveIntro({ onDone }) {
   );
 }
 
+function HeroSection({ startBook, setView }) {
+  const canvasRef = useRef(null);
+  const animRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let t = 0;
+
+    const resize = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    const LAYERS = [
+      { speed:0.007, amp:30, freq:0.011, phase:0,   yBase:0.66, color:'rgba(4,18,48,0.88)'  },
+      { speed:0.011, amp:24, freq:0.017, phase:2.1, yBase:0.70, color:'rgba(5,24,60,0.85)'  },
+      { speed:0.016, amp:19, freq:0.023, phase:4.3, yBase:0.74, color:'rgba(7,32,75,0.9)',  foam:true },
+      { speed:0.022, amp:14, freq:0.030, phase:1.1, yBase:0.78, color:'rgba(9,40,90,0.92)', foam:true },
+      { speed:0.030, amp:10, freq:0.038, phase:3.7, yBase:0.82, color:'rgba(10,48,105,0.95)',foam:true},
+      { speed:0.040, amp:7,  freq:0.047, phase:0.9, yBase:0.86, color:'rgba(7,30,72,1)',    foam:true },
+    ];
+
+    const STARS = Array.from({length:60},()=>({
+      x:Math.random(), y:Math.random()*0.55,
+      r:Math.random()*1.1+0.3, phase:Math.random()*Math.PI*2,
+    }));
+
+    const BUILDINGS = [
+      [0.06,0.50,0.04,0.08],[0.11,0.46,0.03,0.12],[0.15,0.41,0.05,0.17],
+      [0.21,0.44,0.04,0.14],[0.26,0.37,0.04,0.21],[0.31,0.43,0.06,0.15],
+      [0.38,0.39,0.05,0.19],[0.44,0.34,0.04,0.24],[0.49,0.41,0.05,0.17],
+      [0.55,0.45,0.04,0.13],[0.60,0.47,0.03,0.11],[0.64,0.43,0.04,0.15],
+      [0.69,0.46,0.05,0.12],[0.75,0.44,0.04,0.14],[0.80,0.48,0.03,0.10],
+      [0.84,0.45,0.04,0.13],[0.89,0.47,0.05,0.11],
+    ];
+
+    function drawSky(W, H) {
+      const g = ctx.createLinearGradient(0,0,0,H*0.72);
+      g.addColorStop(0,   '#010508');
+      g.addColorStop(0.35,'#030c1a');
+      g.addColorStop(0.7, '#071528');
+      g.addColorStop(1,   '#0a1c3a');
+      ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+      STARS.forEach(s => {
+        const twinkle = 0.35 + 0.65*Math.abs(Math.sin(t*0.7+s.phase));
+        ctx.globalAlpha = twinkle*0.65;
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    function drawCity(W, H) {
+      ctx.fillStyle = 'rgba(5,14,35,0.92)';
+      BUILDINGS.forEach(([bx,by,bw,bh]) =>
+        ctx.fillRect(bx*W, by*H, bw*W, bh*H));
+      ctx.fillRect(0.452*W, 0.26*H, 2, 0.08*H);
+      const wins = [[0.28,0.41],[0.30,0.39],[0.32,0.41],[0.45,0.38],[0.46,0.36],[0.47,0.34],[0.39,0.43],[0.41,0.41],[0.66,0.46],[0.68,0.44],[0.77,0.47]];
+      wins.forEach(([wx,wy]) => {
+        const f = 0.5+0.5*Math.abs(Math.sin(t*0.25+wx*8));
+        ctx.fillStyle = `rgba(255,215,130,${0.35*f})`;
+        ctx.fillRect(wx*W, wy*H, 2, 3);
+      });
+    }
+
+    function wy(layer, x) {
+      return layer.yBase*canvasRef.current.height
+        + layer.amp*Math.sin(layer.freq*x + t*layer.speed*100 + layer.phase)
+        + layer.amp*0.28*Math.sin(layer.freq*1.8*x - t*layer.speed*65 + layer.phase+1.3);
+    }
+
+    function drawWave(layer, W, H) {
+      ctx.beginPath();
+      ctx.moveTo(0, H);
+      for(let x=0; x<=W; x+=3) ctx.lineTo(x, wy(layer,x));
+      ctx.lineTo(W, H); ctx.closePath();
+      ctx.fillStyle = layer.color; ctx.fill();
+      if(layer.foam) {
+        ctx.beginPath();
+        for(let x=0; x<=W; x+=3) {
+          const foam = 1.8*Math.abs(Math.sin(layer.freq*3.2*x + t*layer.speed*85));
+          if(x===0) ctx.moveTo(x, wy(layer,x)-foam);
+          else ctx.lineTo(x, wy(layer,x)-foam);
+        }
+        ctx.strokeStyle = `rgba(255,255,255,${0.055+0.035*Math.abs(Math.sin(t*0.4))})`;
+        ctx.lineWidth = 1.4; ctx.stroke();
+      }
+    }
+
+    function drawDeep(W, H) {
+      const g = ctx.createLinearGradient(0,H*0.62,0,H);
+      g.addColorStop(0,'rgba(3,12,30,0)'); g.addColorStop(1,'#010508');
+      ctx.fillStyle = g; ctx.fillRect(0,H*0.62,W,H*0.38);
+    }
+
+    function frame() {
+      const W = canvas.width, H = canvas.height;
+      if(!W||!H){ animRef.current=requestAnimationFrame(frame); return; }
+      t += 0.011;
+      ctx.clearRect(0,0,W,H);
+      drawSky(W,H);
+      drawCity(W,H);
+      LAYERS.forEach(l=>drawWave(l,W,H));
+      drawDeep(W,H);
+      animRef.current = requestAnimationFrame(frame);
+    }
+    animRef.current = requestAnimationFrame(frame);
+
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      window.removeEventListener('resize', resize);
+    };
+  }, []);
+
+  return (
+    <section style={{minHeight:"100vh",position:"relative",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"130px 24px 80px"}}>
+      <canvas ref={canvasRef} style={{position:"absolute",inset:0,width:"100%",height:"100%",display:"block"}}/>
+      <div style={{position:"relative",zIndex:10,maxWidth:780}} className="fu">
+        <div style={{fontSize:11,letterSpacing:5,color:"#c9a84c",textTransform:"uppercase",marginBottom:18,fontWeight:500}}>Chicago · Lake Michigan · 31st Street Harbor</div>
+        <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(52px,8vw,92px)",fontWeight:300,lineHeight:1.06,marginBottom:22,letterSpacing:-1}}>Experience<br/><span style={{fontStyle:"italic",color:"#c9a84c"}}>Lake Michigan</span><br/>Like Never Before</h1>
+        <p style={{fontSize:17,color:"rgba(255,255,255,.7)",fontWeight:300,maxWidth:500,margin:"0 auto 36px",lineHeight:1.75}}>Whether you're celebrating something big or just want to unwind — our charters are designed to give you the ultimate Chicago experience.</p>
+        <div style={{display:"flex",gap:14,justifyContent:"center",flexWrap:"wrap"}}>
+          <button className="btn-g" onClick={()=>startBook()} style={{background:"#c9a84c",color:"#0a0f1e",border:"none",padding:"15px 38px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600,letterSpacing:2,textTransform:"uppercase",transition:"all .22s"}}>Book Your Charter</button>
+          <button className="btn-o" onClick={()=>setView("dock")} style={{background:"transparent",color:"#4aff9a",border:"1px solid rgba(74,255,154,.35)",padding:"15px 38px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:400,letterSpacing:1,transition:"all .22s"}}>At The Dock</button>
+        </div>
+        <div style={{marginTop:56,display:"flex",gap:40,justifyContent:"center",flexWrap:"wrap"}}>
+          {[["3","Vessels"],["$600","Per Hour"],["12","Max Guests"],["31st St","Harbor"]].map(([n,l])=>(
+            <div key={l} style={{textAlign:"center"}}>
+              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:30,fontWeight:600,color:"#c9a84c"}}>{n}</div>
+              <div style={{fontSize:10,color:"rgba(255,255,255,.45)",letterSpacing:2.5,textTransform:"uppercase",marginTop:3}}>{l}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function SigCanvas({ label, onSigned }) {
   const ref = useRef(null); const drawing = useRef(false); const [has, setHas] = useState(false);
   const xy=(e,c)=>{const r=c.getBoundingClientRect(),sx=c.width/r.width,sy=c.height/r.height;if(e.touches)return{x:(e.touches[0].clientX-r.left)*sx,y:(e.touches[0].clientY-r.top)*sy};return{x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sy};};
@@ -559,25 +703,14 @@ function LDGChartersApp() {
         </div>
       </nav>
 
-      <section style={{minHeight:"100vh",background:"linear-gradient(180deg,#0a0f1e 0%,#0c1a2e 55%,#0a0f1e 100%)",display:"flex",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"130px 24px 80px",position:"relative",overflow:"hidden"}}>
-        <div style={{position:"absolute",top:"18%",left:"8%",width:320,height:320,borderRadius:"50%",background:"radial-gradient(circle,rgba(201,168,76,.07) 0%,transparent 70%)",pointerEvents:"none"}}/>
-        <div style={{position:"absolute",bottom:"18%",right:"8%",width:420,height:420,borderRadius:"50%",background:"radial-gradient(circle,rgba(74,158,255,.05) 0%,transparent 70%)",pointerEvents:"none"}}/>
-        <div style={{position:"absolute",inset:0,backgroundImage:"radial-gradient(circle at 1px 1px,rgba(201,168,76,.055) 1px,transparent 0)",backgroundSize:"44px 44px",pointerEvents:"none"}}/>
-        <div className="fu" style={{maxWidth:780}}>
+      <HeroSection startBook={startBook} setView={setView}/>
           <div style={{fontSize:11,letterSpacing:5,color:"#c9a84c",textTransform:"uppercase",marginBottom:18,fontWeight:500}}>Chicago · Lake Michigan · 31st Street Harbor</div>
           <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(52px,8vw,92px)",fontWeight:300,lineHeight:1.06,marginBottom:22,letterSpacing:-1}}>Experience<br/><span style={{fontStyle:"italic",color:"#c9a84c"}}>Lake Michigan</span><br/>Like Never Before</h1>
           <p style={{fontSize:17,color:"rgba(255,255,255,.6)",fontWeight:300,maxWidth:500,margin:"0 auto 36px",lineHeight:1.75}}>Whether you're celebrating something big or just want to unwind — our charters are designed to give you the ultimate Chicago experience.</p>
           <div style={{display:"flex",gap:14,justifyContent:"center",flexWrap:"wrap"}}>
             <button className="btn-g" onClick={()=>startBook()} style={{background:"#c9a84c",color:"#0a0f1e",border:"none",padding:"15px 38px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600,letterSpacing:2,textTransform:"uppercase",transition:"all .22s"}}>Book Your Charter</button>
             <button className="btn-o" onClick={()=>setView("dock")} style={{background:"transparent",color:"#4aff9a",border:"1px solid rgba(74,255,154,.35)",padding:"15px 38px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:400,letterSpacing:1,transition:"all .22s"}}>At The Dock</button>
-          </div>
-          <div style={{marginTop:56,display:"flex",gap:40,justifyContent:"center",flexWrap:"wrap"}}>
-            {[["3","Vessels"],["$600","Per Hour"],["12","Max Guests"],["31st St","Harbor"]].map(([n,l])=>(
-              <div key={l} style={{textAlign:"center"}}><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:30,fontWeight:600,color:"#c9a84c"}}>{n}</div><div style={{fontSize:10,color:"rgba(255,255,255,.4)",letterSpacing:2.5,textTransform:"uppercase",marginTop:3}}>{l}</div></div>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       <section style={{padding:"96px 5%",maxWidth:880,margin:"0 auto",textAlign:"center"}}>
         <div style={{fontSize:10,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:12}}>About LDG Charters</div>
