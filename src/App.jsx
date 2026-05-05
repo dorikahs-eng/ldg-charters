@@ -704,14 +704,7 @@ function LDGChartersApp() {
       </nav>
 
       <HeroSection startBook={startBook} setView={setView}/>
-          <div style={{fontSize:11,letterSpacing:5,color:"#c9a84c",textTransform:"uppercase",marginBottom:18,fontWeight:500}}>Chicago · Lake Michigan · 31st Street Harbor</div>
-          <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(52px,8vw,92px)",fontWeight:300,lineHeight:1.06,marginBottom:22,letterSpacing:-1}}>Experience<br/><span style={{fontStyle:"italic",color:"#c9a84c"}}>Lake Michigan</span><br/>Like Never Before</h1>
-          <p style={{fontSize:17,color:"rgba(255,255,255,.6)",fontWeight:300,maxWidth:500,margin:"0 auto 36px",lineHeight:1.75}}>Whether you're celebrating something big or just want to unwind — our charters are designed to give you the ultimate Chicago experience.</p>
-          <div style={{display:"flex",gap:14,justifyContent:"center",flexWrap:"wrap"}}>
-            <button className="btn-g" onClick={()=>startBook()} style={{background:"#c9a84c",color:"#0a0f1e",border:"none",padding:"15px 38px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600,letterSpacing:2,textTransform:"uppercase",transition:"all .22s"}}>Book Your Charter</button>
-            <button className="btn-o" onClick={()=>setView("dock")} style={{background:"transparent",color:"#4aff9a",border:"1px solid rgba(74,255,154,.35)",padding:"15px 38px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:400,letterSpacing:1,transition:"all .22s"}}>At The Dock</button>
-
-
+         
       <section style={{padding:"96px 5%",maxWidth:880,margin:"0 auto",textAlign:"center"}}>
         <div style={{fontSize:10,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:12}}>About LDG Charters</div>
         <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(34px,5vw,50px)",fontWeight:400,marginBottom:24,lineHeight:1.2}}>Where Adventure Meets Luxury <span style={{fontStyle:"italic"}}>On The Water</span></h2>
