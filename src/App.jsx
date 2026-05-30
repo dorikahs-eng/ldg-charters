@@ -436,15 +436,15 @@ export function WaveIntro({ onDone }) {
 // ── HERO SECTION ──────────────────────────────────────────────────────────────
 export function HeroSection({ startBook, setPage }) {
   return (
-    <section style={{minHeight:"100vh",position:"relative",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"130px 24px 80px"}}>
+    <section style={{minHeight:"100vh",position:"relative",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"130px 24px 80px",background:"#030810"}}>
 
       {/* Real wave video background */}
-      <video autoPlay muted loop playsInline disablePictureInPicture style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",opacity:0.38,zIndex:0,pointerEvents:"none"}}>
+      <video autoPlay muted loop playsInline disablePictureInPicture style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",opacity:0.65,zIndex:0,pointerEvents:"none"}}>
         <source src="/waves.mp4" type="video/mp4"/>
       </video>
 
-      {/* Dark gradient overlay so text is readable */}
-      <div style={{position:"absolute",inset:0,zIndex:1,background:"linear-gradient(to bottom,rgba(6,13,26,0.72) 0%,rgba(6,13,26,0.55) 40%,rgba(6,13,26,0.78) 100%)"}}/>
+      {/* Overlay - light enough to see waves, dark enough for text */}
+      <div style={{position:"absolute",inset:0,zIndex:1,background:"linear-gradient(to bottom,rgba(6,13,26,0.55) 0%,rgba(6,13,26,0.30) 40%,rgba(6,13,26,0.60) 100%)"}}/>
 
       {/* Gold shimmer at top */}
       <div style={{position:"absolute",top:0,left:0,right:0,height:3,background:"linear-gradient(90deg,transparent,#c9a84c,transparent)",zIndex:2,opacity:0.6}}/>
