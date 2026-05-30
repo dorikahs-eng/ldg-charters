@@ -290,7 +290,6 @@ export const BOAT_RATE = 300;
 export const DEPOSIT = 500;
 export const DOCK_RATE = 150;
 export const DOCK_DEPOSIT = 50;
-export const DOCK_DEPOSIT = 50;
 export const BUFFER_MINS = 30;
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
