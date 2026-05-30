@@ -21,15 +21,15 @@ export const auth = getAuth(firebaseApp);
 
 // ── PHOTO URLS ───────────────────────────────────────────────────────────────
 export const P = {
-  hero:    "https://drive.google.com/uc?export=view&id=10pokZrXZkrbvna_zlpl0zSQ8KOYzTTRD",
-  sunset:  "https://drive.google.com/uc?export=view&id=1-6JYcavMee4mprZgtOk1cKDD4GWxZ-kW",
-  group:   "https://drive.google.com/uc?export=view&id=18tboUDO0dccG-0fFycBuiQYnn8SJqWbC",
-  deck:    "https://drive.google.com/uc?export=view&id=1z7AbVb5dOPDpRxDu9G63jw6s0SBNLkuo",
-  dusk:    "https://drive.google.com/uc?export=view&id=1ii8rHhtiRowPpPYfO--P7JSA9PIeS8XV",
-  night:   "https://drive.google.com/uc?export=view&id=1M_aM9W8D98Cph6Kpdixcu0eh6-zx52XR",
-  playpen: "https://drive.google.com/uc?export=view&id=1HIhJMwO6FZKn1ut4KwuCwittaK2E3EUK",
-  skyline: "https://drive.google.com/uc?export=view&id=1TQ25g1JzxXgDtUO5CHPqAasiKMz1NBEN",
-  crowd:   "https://drive.google.com/uc?export=view&id=1Vb1oSduO5fl1xCq0fyn167gdyN5dOmQA",
+  hero: "https://lh3.googleusercontent.com/d/10pokZrXZkrbvna_zlpl0zSQ8KOYzTTRD=w1200",
+  sunset: "https://lh3.googleusercontent.com/d/1-6JYcavMee4mprZgtOk1cKDD4GWxZ-kW=w1200",
+  group: "https://lh3.googleusercontent.com/d/18tboUDO0dccG-0fFycBuiQYnn8SJqWbC=w1200",
+  deck: "https://lh3.googleusercontent.com/d/1z7AbVb5dOPDpRxDu9G63jw6s0SBNLkuo=w1200",
+  dusk: "https://lh3.googleusercontent.com/d/1ii8rHhtiRowPpPYfO--P7JSA9PIeS8XV=w1200",
+  night: "https://lh3.googleusercontent.com/d/1M_aM9W8D98Cph6Kpdixcu0eh6-zx52XR=w1200",
+  playpen: "https://lh3.googleusercontent.com/d/1HIhJMwO6FZKn1ut4KwuCwittaK2E3EUK=w1200",
+  skyline: "https://lh3.googleusercontent.com/d/1TQ25g1JzxXgDtUO5CHPqAasiKMz1NBEN=w1200",
+  crowd: "https://lh3.googleusercontent.com/d/1Vb1oSduO5fl1xCq0fyn167gdyN5dOmQA=w1200",
 };
 
 // ── DATA ─────────────────────────────────────────────────────────────────────
@@ -350,6 +350,20 @@ export const G = `
 .nav-link:hover{color:#c9a84c!important;}
 .gallery-img:hover{transform:scale(1.04);z-index:2;}
 input:focus,select:focus,textarea:focus{border-color:#c9a84c!important;outline:none;}
+
+@media(max-width:768px){
+  .nav-desktop{display:none!important;}
+  .hero-h1{font-size:clamp(42px,12vw,72px)!important;}
+  .grid-2col{grid-template-columns:1fr!important;}
+  .boat-grid{grid-template-columns:1fr!important;}
+  .dest-grid{grid-template-columns:1fr!important;}
+  .stats-row{gap:24px!important;}
+  .section-pad{padding:60px 6%!important;}
+}
+@media(max-width:480px){
+  .hero-h1{font-size:38px!important;line-height:1.1!important;}
+}
+
 `;
 
 // ── WAVE INTRO ────────────────────────────────────────────────────────────────

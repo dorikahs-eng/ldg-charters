@@ -258,15 +258,17 @@ function LDGChartersApp() {
           <div style={{width:38,height:38,borderRadius:"50%",background:"linear-gradient(135deg,#c9a84c,#7a5a14)",display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:700,color:"#0a0f1e"}}>L</span></div>
           <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:21,fontWeight:600,letterSpacing:2}}>LDG <span style={{color:"#c9a84c"}}>CHARTERS</span></span>
         </div>
-        <div style={{display:"flex",gap:18,alignItems:"center",flexWrap:"wrap"}}>
-          {[["Fleet","fleet"],["Gallery","gallery-sec"],["Destinations","destinations"],["At The Dock","dock-sec"],["Blog","blog-sec"],["Pricing","pricing"],["Contact","contact"]].map(([l,id])=>(
-            <button key={id} className="nav-link" onClick={()=>{
-              if(id==="gallery-sec"){setPage("gallery");return;}
-              if(id==="blog-sec"){setPage("blog");return;}
-              document.getElementById(id)?.scrollIntoView({behavior:"smooth"});
-            }} style={{background:"none",border:"none",color:"rgba(255,255,255,.6)",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:400,transition:"color .2s"}}>{l}</button>
-          ))}
-          <button className="btn-g" onClick={()=>startBook()} style={{background:"#c9a84c",color:"#0a0f1e",border:"none",padding:"9px 20px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:600,letterSpacing:1.5,textTransform:"uppercase",transition:"all .22s"}}>Book Now</button>
+        <div style={{display:"flex",gap:12,alignItems:"center"}}>
+          <div className="nav-desktop" style={{display:"flex",gap:14,alignItems:"center",marginRight:8}}>
+            {[["Fleet","fleet"],["Gallery","gallery-sec"],["Destinations","destinations"],["At The Dock","dock-sec"],["Blog","blog-sec"],["Pricing","pricing"]].map(([l,id])=>(
+              <button key={id} className="nav-link" onClick={()=>{
+                if(id==="gallery-sec"){setPage("gallery");return;}
+                if(id==="blog-sec"){setPage("blog");return;}
+                document.getElementById(id)?.scrollIntoView({behavior:"smooth"});
+              }} style={{background:"none",border:"none",color:"rgba(255,255,255,.6)",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:400,transition:"color .2s"}}>{l}</button>
+            ))}
+          </div>
+          <button className="btn-g" onClick={()=>startBook()} style={{background:"#c9a84c",color:"#0a0f1e",border:"none",padding:"9px 20px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:600,letterSpacing:1.5,textTransform:"uppercase",transition:"all .22s",whiteSpace:"nowrap"}}>Book Now</button>
         </div>
       </nav>
 
@@ -274,7 +276,7 @@ function LDGChartersApp() {
 
       {/* ABOUT with photo */}
       <section style={{padding:"0",position:"relative",overflow:"hidden"}}>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",minHeight:500}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(300px,1fr))",minHeight:"auto"}}>
           <div style={{backgroundImage:`url(${P.group})`,backgroundSize:"cover",backgroundPosition:"center",minHeight:400,position:"relative"}}>
             <div style={{position:"absolute",inset:0,background:"rgba(10,15,30,.35)"}}/>
           </div>
@@ -292,7 +294,7 @@ function LDGChartersApp() {
       <section id="fleet" style={{padding:"80px 5%",background:"rgba(255,255,255,.018)"}}>
         <div style={{maxWidth:1100,margin:"0 auto"}}>
           <div style={{textAlign:"center",marginBottom:52}}><div style={{fontSize:10,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:10}}>Our Fleet</div><h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(34px,5vw,50px)",fontWeight:400}}>Choose Your <span style={{fontStyle:"italic"}}>Vessel</span></h2><p style={{marginTop:12,color:"rgba(255,255,255,.4)",fontSize:14}}>Two identical premium express cruisers — each accommodating up to 12 guests</p></div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(480px,1fr))",gap:24}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(min(480px,100%),1fr))",gap:24}}>
             {BOATS.map(b=>(
               <div key={b.id} className="boat-card" style={{background:"#0c1928",border:"1px solid rgba(201,168,76,.14)",borderRadius:16,overflow:"hidden",transition:"all .3s"}}>
                 <div style={{height:260,backgroundImage:`url(${b.photo})`,backgroundSize:"cover",backgroundPosition:"center",position:"relative"}}>
@@ -341,7 +343,7 @@ function LDGChartersApp() {
 
       {/* AT THE DOCK */}
       <section id="dock-sec" style={{padding:"0",position:"relative",overflow:"hidden"}}>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",minHeight:500}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(300px,1fr))",minHeight:"auto"}}>
           <div style={{background:"rgba(5,18,40,1)",padding:"60px 48px",display:"flex",flexDirection:"column",justifyContent:"center"}}>
             <div style={{fontSize:10,letterSpacing:4,color:"#4aff9a",textTransform:"uppercase",marginBottom:14}}>New Experience</div>
             <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(32px,4vw,52px)",fontWeight:400,marginBottom:18,lineHeight:1.15}}>At The <span style={{fontStyle:"italic",color:"#4aff9a"}}>Dock</span></h2>
@@ -376,7 +378,7 @@ function LDGChartersApp() {
             <div><div style={{fontSize:10,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:10}}>Real Photos</div><h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(28px,4vw,44px)",fontWeight:400}}>A Day on the <span style={{fontStyle:"italic"}}>Lake</span></h2></div>
             <button onClick={()=>setPage("gallery")} style={{background:"transparent",border:"1px solid rgba(201,168,76,.35)",color:"#c9a84c",padding:"10px 22px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,letterSpacing:1,whiteSpace:"nowrap"}}>View Full Gallery →</button>
           </div>
-          <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr",gridTemplateRows:"200px 200px",gap:12}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gridTemplateRows:"auto",gap:12}}>
             {[P.hero,P.sunset,P.group,P.deck,P.dusk].map((url,i)=>(
               <div key={i} onClick={()=>setPage("gallery")} style={{backgroundImage:`url(${url})`,backgroundSize:"cover",backgroundPosition:"center",borderRadius:8,cursor:"pointer",gridRow:i===0?"1/3":"auto",position:"relative",overflow:"hidden"}}
                 onMouseEnter={e=>{e.currentTarget.querySelector('.overlay').style.opacity=1;}}
@@ -463,7 +465,7 @@ function LDGChartersApp() {
         <div style={{textAlign:"center",marginTop:20,fontSize:10,color:"rgba(255,255,255,.15)"}}>{new Date().getFullYear()} LDG Charters · Chicago Boat Rental · Lake Michigan Charter · 31st Street Harbor</div>
       </footer>
     </div>
-    </>);
+    </>;
 
   // ── BOOKING FLOW ──
   return (
