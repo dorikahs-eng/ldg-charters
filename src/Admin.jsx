@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, orderBy, where, serverTimestamp } from "firebase/firestore";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
-import { fmtDate, calcEnd, fmtCurrency, isTimeBlocked, G, CELEBRATIONS, DOCK_DURATIONS, DOCK_RATE, DEPOSIT, BUFFER_MINS, db, auth, Badge, SmartCal, TIMES } from './App';
+import { fmtDate, calcEnd, fmtCurrency, isTimeBlocked, G, CELEBRATIONS, DOCK_DURATIONS, DOCK_RATE, DOCK_DEPOSIT, DEPOSIT, BUFFER_MINS, db, auth, Badge, SmartCal, TIMES, BOATS, P } from './App';
 // ── AT THE DOCK BOOKING ───────────────────────────────────────────────────────
 export function AtTheDockPage({ onBack }) {
   const [step,setStep]=useState(1);
@@ -30,9 +30,17 @@ export function AtTheDockPage({ onBack }) {
   useEffect(()=>{
     if(!date) return;
     const load = async()=>{
-      const q = query(collection(db,"dock_bookings"),where("eventDate","==",date),where("bookingStatus","!=","cancelled"));
-      const snap = await getDocs(q);
-      setBookedSlots(snap.docs.map(d=>d.data()));
+      // Check dock bookings
+      const q1 = query(collection(db,"dock_bookings"),where("eventDate","==",date),where("bookingStatus","!=","cancelled"));
+      const snap1 = await getDocs(q1);
+      const dockSlots = snap1.docs.map(d=>d.data());
+      // Check charter bookings for both boats
+      const q2 = query(collection(db,"bookings"),where("charterDate","==",date),where("bookingStatus","!=","cancelled"));
+      const snap2 = await getDocs(q2);
+      const charterSlots = snap2.docs.map(d=>d.data());
+      // Combine all - if both boats are booked at a time, dock is also blocked
+      const allSlots = [...dockSlots,...charterSlots];
+      setBookedSlots(allSlots);
     };
     load();
   },[date]);
@@ -48,7 +56,7 @@ export function AtTheDockPage({ onBack }) {
         type:"at_the_dock",clientName:info.name,clientEmail:info.email,clientPhone:info.phone,
         celebration:celeb.name,duration:dur.label,hours:dur.hours,
         eventDate:date,startTime:time,endTime:endT,totalPrice:total,
-        bookingStatus:"pending",paymentStatus:"unpaid",createdAt:serverTimestamp(),
+        bookingStatus:"pending",paymentStatus:"deposit_pending",depositAmount:DOCK_DEPOSIT,createdAt:serverTimestamp(),
       });
       setSaved(true);
       // Email notification
@@ -156,7 +164,7 @@ export function AtTheDockPage({ onBack }) {
               <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontWeight:700,letterSpacing:3,color:"#0a0f1e"}}>LDG CHARTERS</div>
               <div style={{fontSize:10,letterSpacing:3,color:"#888",textTransform:"uppercase",marginTop:3}}>At The Dock Reservation</div>
             </div>
-            {[["Guest",info.name],["Email",info.email],["Phone",info.phone],["Celebration",celeb?.name],["Date",fmtDate(date)],["Time",`${time} to ${endT}`],["Duration",dur?.label],["Location","31st Street Harbor, Chicago IL"],["Total",`$${total}`]].map(([k,v])=>(
+            {[["Guest",info.name],["Email",info.email],["Phone",info.phone],["Celebration",celeb?.name],["Date",fmtDate(date)],["Time",`${time} to ${endT}`],["Duration",dur?.label],["Location","31st Street Harbor, Chicago IL"],["Deposit Due",`$${DOCK_DEPOSIT}`],["Total",`$${total}`]].map(([k,v])=>(
               <div key={k} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:"1px solid #f2f2f2",fontSize:13}}>
                 <span style={{color:"#888"}}>{k}</span>
                 <span style={{fontWeight:k==="Total"?700:500,color:k==="Total"?"#c9a84c":"#1a1a1a",fontSize:k==="Total"?17:13}}>{v}</span>
@@ -166,7 +174,7 @@ export function AtTheDockPage({ onBack }) {
               ⏰ <strong>Reminder:</strong> Charter times are strict. Please arrive 15-20 minutes early. Late arrivals do not extend your reservation window.
             </div>
             {err&&<div style={{color:"#ff5050",fontSize:13,marginTop:10,padding:"8px 12px",background:"rgba(255,80,80,.08)",borderRadius:6}}>{err}</div>}
-            {!saved&&<button onClick={save} disabled={saving} style={{width:"100%",background:"#0a0f1e",color:"#fff",border:"none",padding:14,borderRadius:8,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:600,fontSize:14,letterSpacing:1.5,textTransform:"uppercase",marginTop:18}}>{saving?"Confirming...":"Confirm Reservation"}</button>}
+            {!saved&&<button onClick={save} disabled={saving} style={{width:"100%",background:"#0a0f1e",color:"#fff",border:"none",padding:14,borderRadius:8,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:600,fontSize:14,letterSpacing:1.5,textTransform:"uppercase",marginTop:18}}>{saving?"Confirming...":`Confirm & Pay $${DOCK_DEPOSIT} Deposit`}</button>}
             {saved&&<div style={{background:"#f0fff5",border:"2px solid #3aaa66",borderRadius:10,padding:18,textAlign:"center",marginTop:14}}>
               <div style={{fontSize:22,marginBottom:6}}>🎉</div>
               <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:700,color:"#1a7a44",marginBottom:5}}>Reservation Confirmed!</div>

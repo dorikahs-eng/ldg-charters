@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { fmtDate, calcEnd, fmtCurrency, isTimeBlocked, G, BOATS, DURATIONS, DESTINATIONS, TIMES, CELEBRATIONS, DOCK_DURATIONS, TERMS, BLOG_POSTS, BOAT_RATE, DEPOSIT, DOCK_RATE, BUFFER_MINS, P, SC, WaveIntro, HeroSection, SmartCal, SigCanvas, Badge, generatePDF } from './App';
+import { fmtDate, calcEnd, fmtCurrency, isTimeBlocked, G, BOATS, DURATIONS, DESTINATIONS, TIMES, CELEBRATIONS, DOCK_DURATIONS, TERMS, BLOG_POSTS, BOAT_RATE, DEPOSIT, DOCK_RATE, DOCK_DEPOSIT, BUFFER_MINS, P, SC, WaveIntro, HeroSection, SmartCal, SigCanvas, Badge, generatePDF } from './App';
 import { AtTheDockPage, AdminDashboard } from './Admin';
 function BlogPage({ setPage, post, setPost }) {
   if(post) {
@@ -258,17 +258,17 @@ function LDGChartersApp() {
           <div style={{width:38,height:38,borderRadius:"50%",background:"linear-gradient(135deg,#c9a84c,#7a5a14)",display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:700,color:"#0a0f1e"}}>L</span></div>
           <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:21,fontWeight:600,letterSpacing:2}}>LDG <span style={{color:"#c9a84c"}}>CHARTERS</span></span>
         </div>
-        <div style={{display:"flex",gap:12,alignItems:"center"}}>
-          <div className="nav-desktop" style={{display:"flex",gap:14,alignItems:"center",marginRight:8}}>
-            {[["Fleet","fleet"],["Gallery","gallery-sec"],["Destinations","destinations"],["At The Dock","dock-sec"],["Blog","blog-sec"],["Pricing","pricing"]].map(([l,id])=>(
+        <div style={{display:"flex",gap:10,alignItems:"center"}}>
+          <div className="nav-desktop-links">
+            {[["Fleet","fleet"],["Gallery","gallery-sec"],["At The Dock","dock-sec"],["Blog","blog-sec"],["Pricing","pricing"]].map(([l,id])=>(
               <button key={id} className="nav-link" onClick={()=>{
                 if(id==="gallery-sec"){setPage("gallery");return;}
                 if(id==="blog-sec"){setPage("blog");return;}
                 document.getElementById(id)?.scrollIntoView({behavior:"smooth"});
-              }} style={{background:"none",border:"none",color:"rgba(255,255,255,.6)",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:400,transition:"color .2s"}}>{l}</button>
+              }} style={{background:"none",border:"none",color:"rgba(255,255,255,.6)",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:400,transition:"color .2s",whiteSpace:"nowrap"}}>{l}</button>
             ))}
           </div>
-          <button className="btn-g" onClick={()=>startBook()} style={{background:"#c9a84c",color:"#0a0f1e",border:"none",padding:"9px 20px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:600,letterSpacing:1.5,textTransform:"uppercase",transition:"all .22s",whiteSpace:"nowrap"}}>Book Now</button>
+          <button className="btn-g" onClick={()=>startBook()} style={{background:"#c9a84c",color:"#0a0f1e",border:"none",padding:"9px 20px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:600,letterSpacing:1.5,textTransform:"uppercase",transition:"all .22s",whiteSpace:"nowrap",flexShrink:0}}>Book Now</button>
         </div>
       </nav>
 
@@ -357,7 +357,8 @@ function LDGChartersApp() {
                 <button className="btn-g" onClick={()=>setPage("dock")} style={{background:"#4aff9a",color:"#0a0f1e",border:"none",padding:"14px 32px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600,letterSpacing:2,textTransform:"uppercase",transition:"all .22s",boxShadow:"0 6px 24px rgba(74,255,154,.25)"}}>Reserve Your Spot</button>
                 <div style={{display:"flex",alignItems:"center",gap:8}}>
                   <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:32,fontWeight:600,color:"#4aff9a"}}>${DOCK_RATE}</div>
-                  <div style={{fontSize:12,color:"rgba(255,255,255,.4)",lineHeight:1.5}}>per hour / no deposit</div>
+                  <div style={{fontSize:12,color:"rgba(255,255,255,.4)",lineHeight:1.5}}>per hour - no deposit</div>
+                </div>
               </div>
             </div>
             <div style={{position:"relative",borderRadius:16,overflow:"hidden",boxShadow:"0 24px 60px rgba(0,0,0,.6),0 0 0 1px rgba(201,168,76,.12)"}}>
@@ -484,7 +485,7 @@ function LDGChartersApp() {
         <div style={{textAlign:"center",marginTop:20,fontSize:10,color:"rgba(255,255,255,.15)"}}>{new Date().getFullYear()} LDG Charters - Chicago Boat Rental - Lake Michigan Charter - 31st Street Harbor</div>
       </footer>
     </div>
-    </>;
+    </>);
 
   // ── BOOKING FLOW ──
   return (
