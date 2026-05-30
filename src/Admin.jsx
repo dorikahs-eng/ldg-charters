@@ -118,7 +118,7 @@ export function AtTheDockPage({ onBack }) {
         {step===3&&<div className="fu">
           <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(28px,5vw,42px)",fontWeight:400,marginBottom:6}}>Pick Your <span style={{fontStyle:"italic",color:"#4aff9a"}}>Date & Time</span></h2>
           <p style={{color:"rgba(255,255,255,.4)",marginBottom:28,fontSize:14}}>Dockside at 31st Street Harbor. Times are strict — please arrive on time.</p>
-          <div style={{display:"grid",gridTemplateColumns:"auto 1fr",gap:28,flexWrap:"wrap"}}>
+          <div style={{display:"flex",flexWrap:"wrap",gap:20,alignItems:"flex-start",flexWrap:"wrap"}}>
             <SmartCal sel={date} onSel={setDate} bookedSlots={bookedSlots} hours={dur?.hours||1}/>
             <div>
               <div style={{fontSize:10,letterSpacing:2,color:"#4aff9a",textTransform:"uppercase",marginBottom:14}}>Start Time</div>

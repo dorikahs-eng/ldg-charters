@@ -358,12 +358,12 @@ function LDGChartersApp() {
             </div>
           </div>
           <div style={{backgroundImage:`url(${P.night})`,backgroundSize:"cover",backgroundPosition:"center",minHeight:400,position:"relative"}}>
-            <div style={{position:"absolute",inset:0,background:"rgba(10,15,30,.25)"}}/>
+            <div style={{position:"absolute",inset:0,background:"rgba(5,10,20,.15)"}}/>
             <div style={{position:"absolute",bottom:24,right:24,display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
               {[["🎂","Birthdays"],["💍","Anniversaries"],["💼","Corporate"],["🎉","Bach Parties"]].map(([icon,label])=>(
-                <div key={label} style={{background:"rgba(10,15,30,.75)",backdropFilter:"blur(10px)",border:"1px solid rgba(74,255,154,.2)",borderRadius:8,padding:"10px 14px",textAlign:"center"}}>
-                  <div style={{fontSize:18,marginBottom:4}}>{icon}</div>
-                  <div style={{fontSize:10,color:"rgba(255,255,255,.6)"}}>{label}</div>
+                <div key={label} style={{background:"rgba(5,10,25,.6)",backdropFilter:"blur(14px)",border:"1px solid rgba(74,255,154,.3)",borderRadius:12,padding:"20px 12px",textAlign:"center"}}>
+                  <div style={{fontSize:38,marginBottom:10}}>{icon}</div>
+                  <div style={{fontSize:13,fontWeight:500,color:"rgba(255,255,255,.9)"}}>{label}</div>
                 </div>
               ))}
             </div>
@@ -378,12 +378,19 @@ function LDGChartersApp() {
             <div><div style={{fontSize:10,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:10}}>Real Photos</div><h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(28px,4vw,44px)",fontWeight:400}}>A Day on the <span style={{fontStyle:"italic"}}>Lake</span></h2></div>
             <button onClick={()=>setPage("gallery")} style={{background:"transparent",border:"1px solid rgba(201,168,76,.35)",color:"#c9a84c",padding:"10px 22px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,letterSpacing:1,whiteSpace:"nowrap"}}>View Full Gallery →</button>
           </div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gridTemplateRows:"auto",gap:12}}>
-            {[P.hero,P.sunset,P.group,P.deck,P.dusk].map((url,i)=>(
-              <div key={i} onClick={()=>setPage("gallery")} style={{backgroundImage:`url(${url})`,backgroundSize:"cover",backgroundPosition:"center",borderRadius:8,cursor:"pointer",gridRow:i===0?"1/3":"auto",position:"relative",overflow:"hidden"}}
-                onMouseEnter={e=>{e.currentTarget.querySelector('.overlay').style.opacity=1;}}
-                onMouseLeave={e=>{e.currentTarget.querySelector('.overlay').style.opacity=0;}}>
-                <div className="overlay" style={{position:"absolute",inset:0,background:"rgba(201,168,76,.2)",transition:"opacity .3s",opacity:0}}/>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
+            {[
+              {url:P.night,label:"Night Skyline"},
+              {url:P.sunset,label:"Sunset Harbor"},
+              {url:P.group,label:"On The Water"},
+              {url:P.deck,label:"The Deck"},
+              {url:P.skyline,label:"Chicago Skyline"},
+              {url:P.playpen,label:"The Playpen"},
+            ].map((img,i)=>(
+              <div key={i} onClick={()=>setPage("gallery")} style={{borderRadius:8,cursor:"pointer",overflow:"hidden",background:"rgba(10,20,40,1)",aspectRatio:"1/1",position:"relative"}}>
+                <img src={img.url} alt={img.label} loading="lazy" style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}
+                  onError={e=>{e.target.style.display="none";e.target.parentElement.style.background="linear-gradient(135deg,#0d2240,#0a1628)";}}/>
+                <div style={{position:"absolute",bottom:0,left:0,right:0,padding:"6px 8px",background:"linear-gradient(transparent,rgba(10,15,30,.85))",fontSize:9,color:"rgba(255,255,255,.7)",letterSpacing:.5}}>{img.label}</div>
               </div>
             ))}
           </div>
@@ -465,7 +472,7 @@ function LDGChartersApp() {
         <div style={{textAlign:"center",marginTop:20,fontSize:10,color:"rgba(255,255,255,.15)"}}>{new Date().getFullYear()} LDG Charters · Chicago Boat Rental · Lake Michigan Charter · 31st Street Harbor</div>
       </footer>
     </div>
-    </>);
+    </>;
 
   // ── BOOKING FLOW ──
   return (
@@ -560,13 +567,13 @@ function LDGChartersApp() {
           <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(30px,6vw,44px)",fontWeight:400,marginBottom:6}}>Pick Your <span style={{fontStyle:"italic",color:"#c9a84c"}}>Date & Time</span></h2>
           <p style={{color:"rgba(255,255,255,.4)",marginBottom:10,fontSize:14}}>Arrive 15-20 minutes early. Times are strict with a 30-minute buffer between charters.</p>
           <div style={{background:"rgba(255,80,80,.06)",border:"1px solid rgba(255,80,80,.2)",borderRadius:8,padding:"10px 16px",marginBottom:24,fontSize:12,color:"rgba(255,140,140,.8)"}}>⏰ <strong>Important:</strong> Charter times are strict. Late arrivals do not extend your charter window. Please plan to arrive early.</div>
-          <div style={{display:"grid",gridTemplateColumns:"auto 1fr",gap:32,flexWrap:"wrap"}}>
+          <div style={{display:"flex",flexWrap:"wrap",gap:24,alignItems:"flex-start"}}>
             <SmartCal sel={date} onSel={setDate} vesselId={boat?.id} hours={dur?.hours||2} bookedSlots={bookedSlots} loadingSlots={loadingSlots}/>
             <div>
               <div style={{fontSize:10,letterSpacing:2,color:"#c9a84c",textTransform:"uppercase",marginBottom:6}}>Departure Time</div>
               {loadingSlots&&<div style={{fontSize:12,color:"rgba(255,255,255,.4)",marginBottom:12}}>Checking availability...</div>}
               {!loadingSlots&&date&&bookedSlots.length>0&&<div style={{fontSize:12,color:"rgba(255,190,50,.7)",marginBottom:12}}>⚠️ Some times unavailable for {fmtDate(date)}</div>}
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(100px,1fr))",gap:8}}>
                 {TIMES.map(t=>{
                   const blocked = dur ? isTimeBlocked(t,dur.hours,bookedSlots) : false;
                   return (
