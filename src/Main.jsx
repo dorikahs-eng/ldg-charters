@@ -753,13 +753,18 @@ function LDGChartersApp() {
                   <span style={{color:"#3aaa66",fontWeight:600}}>-${(total-discountedTotal).toLocaleString()}</span>
                 </div>}
               </div>
-              <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"#999",marginBottom:12}}>Select Payment Option</div>
+              {discountedTotal>0&&<><div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"#999",marginBottom:12}}>Select Payment Option</div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:14}}>
                 <div onClick={()=>setPayOpt("deposit")} style={{border:payOpt==="deposit"?"2.5px solid #c9a84c":"1px solid #ddd",borderRadius:8,padding:14,cursor:"pointer",background:payOpt==="deposit"?"#fffbf0":"#fff",transition:"all .2s"}}><div style={{fontWeight:700,fontSize:13,color:"#0a0f1e",marginBottom:4}}>Pay Deposit</div><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:700,color:"#c9a84c"}}>$500.00</div><div style={{fontSize:10,color:"#888",marginTop:3}}>Non-refundable - Secures booking</div></div>
                 <div onClick={()=>setPayOpt("full")} style={{border:payOpt==="full"?"2.5px solid #0a0f1e":"1px solid #ddd",borderRadius:8,padding:14,cursor:"pointer",background:payOpt==="full"?"#f0f0f5":"#fff",transition:"all .2s"}}><div style={{fontWeight:700,fontSize:13,color:"#0a0f1e",marginBottom:4}}>Pay in Full</div><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:700,color:"#0a0f1e"}}>${discountedTotal===0?"FREE":`$${discountedTotal.toLocaleString()}`}</div><div style={{fontSize:10,color:"#888",marginTop:3}}>{discountedTotal===0?"Test booking - $0 charge":"No remaining balance"}</div></div>
-              </div>
+              </div></>
+              }
               {saveErr&&<div style={{background:"rgba(255,80,80,.1)",border:"1px solid rgba(255,80,80,.3)",borderRadius:6,padding:"10px 14px",fontSize:13,color:"#ff5050",marginBottom:12}}>{saveErr}</div>}
-              {payOpt&&<button onClick={()=>saveBooking(payOpt)} disabled={saving} style={{width:"100%",background:"#0a0f1e",color:"#fff",border:"none",padding:14,borderRadius:8,cursor:saving?"default":"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:600,fontSize:14,letterSpacing:1.5,textTransform:"uppercase",opacity:saving?.7:1}}>{saving?"Confirming & generating PDF...":payOpt==="deposit"?"Confirm & Pay $500 Deposit →":`Confirm & Pay $${total.toLocaleString()} in Full →`}</button>}
+              {discountedTotal===0?(
+                <button onClick={()=>saveBooking("free")} disabled={saving} style={{width:"100%",background:"linear-gradient(135deg,#3aaa66,#2d8a52)",color:"#fff",border:"none",padding:14,borderRadius:8,cursor:saving?"default":"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:600,fontSize:14,letterSpacing:1.5,textTransform:"uppercase",boxShadow:"0 6px 20px rgba(58,170,102,.35)"}}>
+                  {saving?"Confirming...":"✓ Confirm Test Booking — No Charge"}
+                </button>
+              ):(payOpt&&<button onClick={()=>saveBooking(payOpt)} disabled={saving} style={{width:"100%",background:"#0a0f1e",color:"#fff",border:"none",padding:14,borderRadius:8,cursor:saving?"default":"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:600,fontSize:14,letterSpacing:1.5,textTransform:"uppercase",opacity:saving?.7:1}}>{saving?"Confirming...":payOpt==="deposit"?`Confirm & Pay $${discountedDeposit} Deposit →`:`Confirm & Pay $${discountedTotal.toLocaleString()} in Full →`}</button>)}
             </>}
             {saved&&<div style={{background:"#f0fff5",border:"2px solid #3aaa66",borderRadius:10,padding:20,textAlign:"center"}}>
               <div style={{fontSize:26,marginBottom:6}}>🎉</div>
