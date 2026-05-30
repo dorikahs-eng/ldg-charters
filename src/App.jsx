@@ -429,92 +429,41 @@ export function WaveIntro({ onDone }) {
 }
 
 // ── HERO SECTION ──────────────────────────────────────────────────────────────
-export function HeroSection({ startBook, setPage }) {
-  const canvasRef = useRef(null);
-  const animRef = useRef(null);
-
-  useEffect(()=>{
-    const canvas = canvasRef.current;
-    if(!canvas) return;
-    const ctx = canvas.getContext("2d");
-    let t = 0;
-    const resize=()=>{canvas.width=canvas.offsetWidth;canvas.height=canvas.offsetHeight;};
-    resize();
-    window.addEventListener("resize",resize);
-
-    const LAYERS=[
-      {speed:.007,amp:28,freq:.011,phase:0,   yBase:.62,color:"rgba(4,18,48,0.82)"},
-      {speed:.011,amp:22,freq:.017,phase:2.1, yBase:.66,color:"rgba(5,24,60,0.80)"},
-      {speed:.016,amp:17,freq:.023,phase:4.3, yBase:.70,color:"rgba(7,32,75,0.85)",foam:true},
-      {speed:.022,amp:13,freq:.030,phase:1.1, yBase:.74,color:"rgba(9,40,90,0.88)",foam:true},
-      {speed:.030,amp:9, freq:.038,phase:3.7, yBase:.78,color:"rgba(10,48,105,0.92)",foam:true},
-      {speed:.040,amp:6, freq:.047,phase:.9,  yBase:.82,color:"rgba(7,30,72,0.96)",foam:true},
-    ];
-    const STARS=Array.from({length:55},()=>({x:Math.random(),y:Math.random()*.52,r:Math.random()*1.1+.3,phase:Math.random()*Math.PI*2}));
-    const BLDGS=[[.06,.52,.04,.08],[.11,.47,.03,.11],[.15,.42,.05,.16],[.21,.44,.04,.14],[.26,.38,.04,.20],[.31,.44,.06,.14],[.38,.40,.05,.18],[.44,.35,.04,.23],[.49,.41,.05,.17],[.55,.45,.04,.13],[.60,.47,.03,.11],[.64,.44,.04,.14],[.69,.46,.05,.12],[.75,.44,.04,.14],[.80,.48,.03,.10],[.84,.45,.04,.13],[.89,.47,.05,.11]];
-
-    const drawSky=(W,H)=>{
-      const g=ctx.createLinearGradient(0,0,0,H*.68);
-      g.addColorStop(0,"#010508");g.addColorStop(.35,"#030c1a");g.addColorStop(.7,"#071528");g.addColorStop(1,"#0a1c3a");
-      ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-      STARS.forEach(s=>{const tw=.35+.65*Math.abs(Math.sin(t*.7+s.phase));ctx.globalAlpha=tw*.6;ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(s.x*W,s.y*H,s.r,0,Math.PI*2);ctx.fill();});
-      ctx.globalAlpha=1;
-    };
-    const drawCity=(W,H)=>{
-      ctx.fillStyle="rgba(5,14,35,0.94)";
-      BLDGS.forEach(([bx,by,bw,bh])=>ctx.fillRect(bx*W,by*H,bw*W,bh*H));
-      ctx.fillRect(.452*W,.27*H,2,.07*H);
-      [[.28,.42],[.30,.40],[.32,.42],[.45,.39],[.46,.37],[.47,.35],[.39,.44],[.41,.42],[.66,.47],[.68,.45],[.77,.48]].forEach(([wx,wy])=>{
-        const f=.5+.5*Math.abs(Math.sin(t*.25+wx*8));
-        ctx.fillStyle=`rgba(255,215,130,${.3*f})`;ctx.fillRect(wx*W,wy*H,2,3);
-      });
-    };
-    const wy=(layer,x)=>layer.yBase*canvas.height+layer.amp*Math.sin(layer.freq*x+t*layer.speed*100+layer.phase)+layer.amp*.28*Math.sin(layer.freq*1.8*x-t*layer.speed*65+layer.phase+1.3);
-    const drawWave=(layer,W,H)=>{
-      ctx.beginPath();ctx.moveTo(0,H);
-      for(let x=0;x<=W;x+=3)ctx.lineTo(x,wy(layer,x));
-      ctx.lineTo(W,H);ctx.closePath();ctx.fillStyle=layer.color;ctx.fill();
-      if(layer.foam){
-        ctx.beginPath();
-        for(let x=0;x<=W;x+=3){const fo=1.8*Math.abs(Math.sin(layer.freq*3.2*x+t*layer.speed*85));if(x===0)ctx.moveTo(x,wy(layer,x)-fo);else ctx.lineTo(x,wy(layer,x)-fo);}
-        ctx.strokeStyle=`rgba(255,255,255,${.05+.03*Math.abs(Math.sin(t*.4))})`;ctx.lineWidth=1.4;ctx.stroke();
-      }
-    };
-    const drawDeep=(W,H)=>{const g=ctx.createLinearGradient(0,H*.58,0,H);g.addColorStop(0,"rgba(3,12,30,0)");g.addColorStop(1,"#010508");ctx.fillStyle=g;ctx.fillRect(0,H*.58,W,H*.42);};
-
-    const frame=()=>{
-      const W=canvas.width,H=canvas.height;
-      if(!W||!H){animRef.current=requestAnimationFrame(frame);return;}
-      t+=.011;ctx.clearRect(0,0,W,H);
-      drawSky(W,H);drawCity(W,H);
-      LAYERS.forEach(l=>drawWave(l,W,H));
-      drawDeep(W,H);
-      animRef.current=requestAnimationFrame(frame);
-    };
-    animRef.current=requestAnimationFrame(frame);
-    return()=>{cancelAnimationFrame(animRef.current);window.removeEventListener("resize",resize);};
-  },[]);
-
+function HeroSection({ startBook, setPage }) {
   return (
     <section style={{minHeight:"100vh",position:"relative",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"130px 24px 80px"}}>
-      <canvas ref={canvasRef} style={{position:"absolute",inset:0,width:"100%",height:"100%",display:"block"}}/>
-      <div style={{position:"relative",zIndex:10,maxWidth:780}} className="fu">
+
+      {/* Real wave video background */}
+      <video
+        autoPlay muted loop playsInline
+        style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",opacity:0.38,zIndex:0}}
+      >
+        <source src="/waves.mp4" type="video/mp4"/>
+      </video>
+
+      {/* Dark gradient overlay so text is readable */}
+      <div style={{position:"absolute",inset:0,zIndex:1,background:"linear-gradient(to bottom,rgba(6,13,26,0.72) 0%,rgba(6,13,26,0.55) 40%,rgba(6,13,26,0.78) 100%)"}}/>
+
+      {/* Gold shimmer at top */}
+      <div style={{position:"absolute",top:0,left:0,right:0,height:3,background:"linear-gradient(90deg,transparent,#c9a84c,transparent)",zIndex:2,opacity:0.6}}/>
+
+      <div style={{position:"relative",zIndex:3,maxWidth:780}} className="fu">
         <div style={{fontSize:11,letterSpacing:5,color:"#c9a84c",textTransform:"uppercase",marginBottom:18,fontWeight:500}}>Chicago · Lake Michigan · 31st Street Harbor</div>
-        <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(52px,8vw,92px)",fontWeight:300,lineHeight:1.06,marginBottom:22,letterSpacing:-1}}>
+        <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(48px,8vw,92px)",fontWeight:300,lineHeight:1.06,marginBottom:22,letterSpacing:-1,textShadow:"0 2px 40px rgba(0,0,0,.5)"}}>
           Experience<br/><span style={{fontStyle:"italic",color:"#c9a84c"}}>Lake Michigan</span><br/>Like Never Before
         </h1>
-        <p style={{fontSize:17,color:"rgba(255,255,255,.7)",fontWeight:300,maxWidth:500,margin:"0 auto 36px",lineHeight:1.75}}>
-          Whether you're celebrating something big or just want to unwind — our charters are designed to give you the ultimate Chicago experience.
+        <p style={{fontSize:17,color:"rgba(255,255,255,.75)",fontWeight:300,maxWidth:500,margin:"0 auto 36px",lineHeight:1.75,textShadow:"0 1px 12px rgba(0,0,0,.6)"}}>
+          Whether you are celebrating something big or just want to unwind — our charters are designed to give you the ultimate Chicago experience.
         </p>
         <div style={{display:"flex",gap:14,justifyContent:"center",flexWrap:"wrap"}}>
-          <button className="btn-g" onClick={()=>startBook()} style={{background:"#c9a84c",color:"#0a0f1e",border:"none",padding:"15px 38px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600,letterSpacing:2,textTransform:"uppercase",transition:"all .22s"}}>Book Your Charter</button>
-          <button className="btn-o" onClick={()=>setPage("dock")} style={{background:"transparent",color:"#4aff9a",border:"1px solid rgba(74,255,154,.35)",padding:"15px 38px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:400,letterSpacing:1,transition:"all .22s"}}>At The Dock</button>
+          <button className="btn-g" onClick={()=>startBook()} style={{background:"#c9a84c",color:"#0a0f1e",border:"none",padding:"15px 38px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600,letterSpacing:2,textTransform:"uppercase",transition:"all .22s",boxShadow:"0 8px 32px rgba(201,168,76,.35)"}}>Book Your Charter</button>
+          <button className="btn-o" onClick={()=>setPage("dock")} style={{background:"rgba(6,13,26,0.5)",color:"#4aff9a",border:"1px solid rgba(74,255,154,.4)",padding:"15px 38px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:400,letterSpacing:1,transition:"all .22s",backdropFilter:"blur(8px)"}}>At The Dock</button>
         </div>
         <div style={{marginTop:56,display:"flex",gap:40,justifyContent:"center",flexWrap:"wrap"}}>
           {[["2","Vessels"],["$300","Per Hour"],["12","Max Guests"],["31st St","Harbor"]].map(([n,l])=>(
             <div key={l} style={{textAlign:"center"}}>
-              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:30,fontWeight:600,color:"#c9a84c"}}>{n}</div>
-              <div style={{fontSize:10,color:"rgba(255,255,255,.45)",letterSpacing:2.5,textTransform:"uppercase",marginTop:3}}>{l}</div>
+              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:30,fontWeight:600,color:"#c9a84c",textShadow:"0 2px 16px rgba(201,168,76,.4)"}}>{n}</div>
+              <div style={{fontSize:10,color:"rgba(255,255,255,.5)",letterSpacing:2.5,textTransform:"uppercase",marginTop:3}}>{l}</div>
             </div>
           ))}
         </div>

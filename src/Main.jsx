@@ -341,31 +341,45 @@ function LDGChartersApp() {
         </div>
       </section>
 
-      {/* AT THE DOCK */}
-      <section id="dock-sec" style={{padding:"0",position:"relative",overflow:"hidden"}}>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(300px,1fr))",minHeight:"auto"}}>
-          <div style={{background:"rgba(5,18,40,1)",padding:"60px 48px",display:"flex",flexDirection:"column",justifyContent:"center"}}>
-            <div style={{fontSize:10,letterSpacing:4,color:"#4aff9a",textTransform:"uppercase",marginBottom:14}}>New Experience</div>
-            <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(32px,4vw,52px)",fontWeight:400,marginBottom:18,lineHeight:1.15}}>At The <span style={{fontStyle:"italic",color:"#4aff9a"}}>Dock</span></h2>
-            <p style={{fontSize:15,color:"rgba(255,255,255,.6)",lineHeight:1.8,marginBottom:18}}>Bring the celebration dockside. No charter required — just show up, set the vibe, and enjoy the harbor atmosphere at 31st Street.</p>
-            <p style={{fontSize:15,color:"rgba(255,255,255,.6)",lineHeight:1.8,marginBottom:28}}>Birthdays, corporate events, anniversaries, girls nights and more — at just <strong style={{color:"#4aff9a"}}>${DOCK_RATE}/hr</strong>. No deposit required.</p>
-            <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
-              <button className="btn-g" onClick={()=>setPage("dock")} style={{background:"#4aff9a",color:"#0a0f1e",border:"none",padding:"14px 32px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600,letterSpacing:2,textTransform:"uppercase",transition:"all .22s"}}>Reserve Your Spot</button>
-              <div style={{display:"flex",alignItems:"center",gap:8}}>
-                <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:32,fontWeight:600,color:"#4aff9a"}}>${DOCK_RATE}</div>
-                <div style={{fontSize:12,color:"rgba(255,255,255,.4)"}}>per hour<br/>no deposit</div>
+      {/* AT THE DOCK V2 */}
+      <section id="dock-sec" style={{padding:"80px 5%",background:"rgba(255,255,255,.012)"}}>
+        <div style={{maxWidth:1100,margin:"0 auto"}}>
+          <div style={{textAlign:"center",marginBottom:40}}>
+            <div style={{fontSize:10,letterSpacing:4,color:"#4aff9a",textTransform:"uppercase",marginBottom:10}}>New Experience</div>
+            <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(32px,5vw,52px)",fontWeight:400}}>At The <span style={{fontStyle:"italic",color:"#4aff9a"}}>Dock</span></h2>
+            <p style={{fontSize:14,color:"rgba(255,255,255,.45)",marginTop:10,maxWidth:500,margin:"10px auto 0"}}>${DOCK_RATE}/hr dockside at 31st Street Harbor · No deposit required</p>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:32,alignItems:"start"}}>
+            <div style={{display:"flex",flexDirection:"column",gap:16,paddingTop:8}}>
+              <p style={{fontSize:15,color:"rgba(255,255,255,.6)",lineHeight:1.85}}>Bring the celebration dockside. No charter required — just show up, set the vibe, and enjoy the harbor atmosphere at 31st Street. Perfect for any occasion.</p>
+              <p style={{fontSize:15,color:"rgba(255,255,255,.6)",lineHeight:1.85}}>We set the atmosphere. You bring the celebration.</p>
+              <div style={{display:"flex",gap:14,alignItems:"center",marginTop:8,flexWrap:"wrap"}}>
+                <button className="btn-g" onClick={()=>setPage("dock")} style={{background:"#4aff9a",color:"#0a0f1e",border:"none",padding:"14px 32px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600,letterSpacing:2,textTransform:"uppercase",transition:"all .22s",boxShadow:"0 6px 24px rgba(74,255,154,.25)"}}>Reserve Your Spot</button>
+                <div style={{display:"flex",alignItems:"center",gap:8}}>
+                  <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:32,fontWeight:600,color:"#4aff9a"}}>${DOCK_RATE}</div>
+                  <div style={{fontSize:12,color:"rgba(255,255,255,.4)",lineHeight:1.5}}>per hour{"
+"}no deposit</div>
+                </div>
               </div>
             </div>
-          </div>
-          <div style={{backgroundImage:`url(${P.night})`,backgroundSize:"cover",backgroundPosition:"center",minHeight:400,position:"relative"}}>
-            <div style={{position:"absolute",inset:0,background:"rgba(5,10,20,.15)"}}/>
-            <div style={{position:"absolute",bottom:24,right:24,display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-              {[["🎂","Birthdays"],["💍","Anniversaries"],["💼","Corporate"],["🎉","Bach Parties"]].map(([icon,label])=>(
-                <div key={label} style={{background:"rgba(5,10,25,.6)",backdropFilter:"blur(14px)",border:"1px solid rgba(74,255,154,.3)",borderRadius:12,padding:"20px 12px",textAlign:"center"}}>
-                  <div style={{fontSize:38,marginBottom:10}}>{icon}</div>
-                  <div style={{fontSize:13,fontWeight:500,color:"rgba(255,255,255,.9)"}}>{label}</div>
-                </div>
-              ))}
+            <div style={{position:"relative",borderRadius:16,overflow:"hidden",boxShadow:"0 24px 60px rgba(0,0,0,.6),0 0 0 1px rgba(201,168,76,.12)"}}>
+              <div style={{position:"absolute",inset:0,backgroundImage:`url(${P.night})`,backgroundSize:"cover",backgroundPosition:"center",filter:"brightness(0.18) saturate(0.5) blur(1px)",transform:"scale(1.05)",zIndex:0}}/>
+              <div style={{position:"absolute",inset:0,zIndex:1,background:"radial-gradient(ellipse at 50% 50%,rgba(10,20,45,.35) 0%,rgba(5,10,22,.75) 100%)"}}/>
+              <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:"linear-gradient(90deg,transparent,rgba(201,168,76,.5),transparent)",zIndex:3}}/>
+              <div style={{position:"relative",zIndex:2,display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gridTemplateRows:"1fr 1fr"}}>
+                {[["🎂","Birthday"],["💍","Anniversary"],["💼","Corporate"],["🎉","Bach Party"],["🥂","Girls Night"],["✨","Celebrating"]].map(([icon,label])=>(
+                  <div key={label} onClick={()=>setPage("dock")}
+                    style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:10,padding:"32px 10px",border:"1px solid rgba(201,168,76,.1)",cursor:"pointer",transition:"all .3s",background:"transparent"}}
+                    onMouseEnter={e=>{e.currentTarget.style.background="rgba(201,168,76,.08)";e.currentTarget.style.borderColor="rgba(201,168,76,.35)";}}
+                    onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.borderColor="rgba(201,168,76,.1)";}}>
+                    <div style={{fontSize:46,lineHeight:1,filter:"drop-shadow(0 3px 14px rgba(201,168,76,.25))",transition:"transform .3s"}}>{icon}</div>
+                    <div style={{fontSize:11,fontWeight:600,color:"rgba(255,255,255,.75)",letterSpacing:"1px",textTransform:"uppercase"}}>{label}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{position:"relative",zIndex:3,padding:"16px 20px",background:"linear-gradient(to top,rgba(6,13,26,.95),transparent)",display:"flex",justifyContent:"center"}}>
+                <button onClick={()=>setPage("dock")} style={{background:"linear-gradient(135deg,#4aff9a,#2dd67a)",color:"#030d08",border:"none",padding:"12px 36px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:700,letterSpacing:"2px",textTransform:"uppercase",boxShadow:"0 6px 24px rgba(74,255,154,.3)"}}>Reserve Your Spot</button>
+              </div>
             </div>
           </div>
         </div>
@@ -472,7 +486,7 @@ function LDGChartersApp() {
         <div style={{textAlign:"center",marginTop:20,fontSize:10,color:"rgba(255,255,255,.15)"}}>{new Date().getFullYear()} LDG Charters · Chicago Boat Rental · Lake Michigan Charter · 31st Street Harbor</div>
       </footer>
     </div>
-    </>);
+    </>;
 
   // ── BOOKING FLOW ──
   return (
