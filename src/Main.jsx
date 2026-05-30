@@ -169,6 +169,9 @@ function LDGChartersApp() {
   const [saving,setSaving]=useState(false);
   const [saved,setSaved]=useState(false);
   const [saveErr,setSaveErr]=useState("");
+  const [coupon,setCoupon]=useState("");
+  const [couponApplied,setCouponApplied]=useState(null);
+  const [couponErr,setCouponErr]=useState("");
   const [bookedSlots,setBookedSlots]=useState([]);
   const [loadingSlots,setLoadingSlots]=useState(false);
 
@@ -209,6 +212,29 @@ function LDGChartersApp() {
   const EMAILJS_PUBLIC_KEY="jsEvKIVZ10ZQqt-4r";
   const TEMPLATE_CUSTOMER="template_t4td6qc";
   const TEMPLATE_ADMIN="template_swbrijc";
+
+  const COUPONS = {
+    "TESTLDG2026": {discount:1.00, label:"100% Test Discount", type:"percent"},
+    "CREW50":      {discount:0.50, label:"50% Crew Discount",  type:"percent"},
+    "DOCK20":      {discount:0.20, label:"20% Off",            type:"percent"},
+  };
+
+  const applyCoupon = () => {
+    setCouponErr("");
+    const code = coupon.trim().toUpperCase();
+    if(COUPONS[code]) {
+      setCouponApplied({code, ...COUPONS[code]});
+    } else {
+      setCouponErr("Invalid coupon code.");
+      setCouponApplied(null);
+    }
+  };
+
+  const discountedTotal = couponApplied
+    ? Math.round(total * (1 - couponApplied.discount))
+    : total;
+  const discountedDeposit = couponApplied?.discount === 1.00 ? 0 : DEPOSIT;
+  const discountedBalance = Math.max(0, discountedTotal - discountedDeposit);
 
   const sendEmails=async(chosenPayOpt)=>{
     const params={customer_name:info.name,customer_email:info.email,customer_phone:info.phone,vessel:boat.name,charter_date:fmtDate(date),start_time:time,end_time:endT,duration:`${dur.label} (${dur.hours} hrs)`,destination:dest.name,total_price:`$${total.toLocaleString()}.00`,balance:`$${balance.toLocaleString()}.00`,payment_option:chosenPayOpt==="full"?"Full Payment":"Deposit Only ($500)",captain_name:"Arranged Separately — Call 708-846-3132"};
@@ -707,10 +733,30 @@ function LDGChartersApp() {
               </div>
             </div>
             {!saved&&<>
+              {/* Coupon Code */}
+              <div style={{marginBottom:18,paddingBottom:16,borderBottom:"1px solid #f0f0f0"}}>
+                <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"#999",marginBottom:8}}>Coupon Code</div>
+                {!couponApplied ? (
+                  <div style={{display:"flex",gap:8}}>
+                    <input value={coupon} onChange={e=>setCoupon(e.target.value)} onKeyDown={e=>e.key==="Enter"&&applyCoupon()} placeholder="Enter code" style={{flex:1,border:"1px solid #ddd",borderRadius:6,padding:"8px 12px",fontFamily:"'DM Sans',sans-serif",fontSize:13,outline:"none"}}/>
+                    <button onClick={applyCoupon} style={{background:"#0a0f1e",color:"#fff",border:"none",padding:"8px 16px",borderRadius:6,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:600,whiteSpace:"nowrap"}}>Apply</button>
+                  </div>
+                ) : (
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",background:"#f0fff5",border:"1px solid #3aaa66",borderRadius:6,padding:"8px 12px"}}>
+                    <span style={{fontSize:13,color:"#1a7a44",fontWeight:600}}>✓ {couponApplied.label} ({couponApplied.code})</span>
+                    <button onClick={()=>{setCouponApplied(null);setCoupon("");}} style={{background:"none",border:"none",color:"#888",cursor:"pointer",fontSize:12}}>Remove</button>
+                  </div>
+                )}
+                {couponErr&&<div style={{fontSize:12,color:"#cc4444",marginTop:5}}>{couponErr}</div>}
+                {couponApplied&&<div style={{marginTop:8,display:"flex",justifyContent:"space-between",fontSize:13,color:"#555"}}>
+                  <span>Discount ({Math.round(couponApplied.discount*100)}% off)</span>
+                  <span style={{color:"#3aaa66",fontWeight:600}}>-${(total-discountedTotal).toLocaleString()}</span>
+                </div>}
+              </div>
               <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"#999",marginBottom:12}}>Select Payment Option</div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:14}}>
                 <div onClick={()=>setPayOpt("deposit")} style={{border:payOpt==="deposit"?"2.5px solid #c9a84c":"1px solid #ddd",borderRadius:8,padding:14,cursor:"pointer",background:payOpt==="deposit"?"#fffbf0":"#fff",transition:"all .2s"}}><div style={{fontWeight:700,fontSize:13,color:"#0a0f1e",marginBottom:4}}>Pay Deposit</div><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:700,color:"#c9a84c"}}>$500.00</div><div style={{fontSize:10,color:"#888",marginTop:3}}>Non-refundable - Secures booking</div></div>
-                <div onClick={()=>setPayOpt("full")} style={{border:payOpt==="full"?"2.5px solid #0a0f1e":"1px solid #ddd",borderRadius:8,padding:14,cursor:"pointer",background:payOpt==="full"?"#f0f0f5":"#fff",transition:"all .2s"}}><div style={{fontWeight:700,fontSize:13,color:"#0a0f1e",marginBottom:4}}>Pay in Full</div><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:700,color:"#0a0f1e"}}>${total.toLocaleString()}</div><div style={{fontSize:10,color:"#888",marginTop:3}}>No remaining balance</div></div>
+                <div onClick={()=>setPayOpt("full")} style={{border:payOpt==="full"?"2.5px solid #0a0f1e":"1px solid #ddd",borderRadius:8,padding:14,cursor:"pointer",background:payOpt==="full"?"#f0f0f5":"#fff",transition:"all .2s"}}><div style={{fontWeight:700,fontSize:13,color:"#0a0f1e",marginBottom:4}}>Pay in Full</div><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:700,color:"#0a0f1e"}}>${discountedTotal===0?"FREE":`$${discountedTotal.toLocaleString()}`}</div><div style={{fontSize:10,color:"#888",marginTop:3}}>{discountedTotal===0?"Test booking - $0 charge":"No remaining balance"}</div></div>
               </div>
               {saveErr&&<div style={{background:"rgba(255,80,80,.1)",border:"1px solid rgba(255,80,80,.3)",borderRadius:6,padding:"10px 14px",fontSize:13,color:"#ff5050",marginBottom:12}}>{saveErr}</div>}
               {payOpt&&<button onClick={()=>saveBooking(payOpt)} disabled={saving} style={{width:"100%",background:"#0a0f1e",color:"#fff",border:"none",padding:14,borderRadius:8,cursor:saving?"default":"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:600,fontSize:14,letterSpacing:1.5,textTransform:"uppercase",opacity:saving?.7:1}}>{saving?"Confirming & generating PDF...":payOpt==="deposit"?"Confirm & Pay $500 Deposit →":`Confirm & Pay $${total.toLocaleString()} in Full →`}</button>}
