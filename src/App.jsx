@@ -435,36 +435,469 @@ export function WaveIntro({ onDone }) {
 
 // ── HERO SECTION ──────────────────────────────────────────────────────────────
 export function HeroSection({ startBook, setPage }) {
+  const canvasRef = useRef(null);
+  const animRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let t = 0;
+    let W, H;
+
+    const resize = () => {
+      W = canvas.width = canvas.offsetWidth;
+      H = canvas.height = canvas.offsetHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    // ── CHICAGO SKYLINE (accurate proportions) ──
+    // Buildings: [x%, yTop%, width%, height%] relative to canvas
+    const SKYLINE = [
+      // Far left - residential
+      [0.00, 0.68, 0.018, 0.10],
+      [0.02, 0.65, 0.015, 0.13],
+      [0.035, 0.62, 0.020, 0.16],
+      // 333 W Wacker (curved green glass)
+      [0.055, 0.58, 0.028, 0.20],
+      // Civic Opera Building
+      [0.085, 0.55, 0.030, 0.23],
+      // Mid buildings
+      [0.115, 0.60, 0.020, 0.18],
+      [0.135, 0.58, 0.018, 0.20],
+      // Willis Tower (Sears) — the tallest, center-left
+      [0.155, 0.28, 0.038, 0.50],  // main shaft
+      [0.163, 0.22, 0.022, 0.08],  // antenna block left
+      [0.172, 0.18, 0.008, 0.12],  // left antenna
+      [0.176, 0.16, 0.008, 0.14],  // right antenna (taller)
+      // Buildings right of Willis
+      [0.195, 0.52, 0.025, 0.26],
+      [0.220, 0.48, 0.022, 0.30],
+      // 311 S Wacker (lit crown)
+      [0.242, 0.42, 0.030, 0.36],
+      [0.248, 0.38, 0.018, 0.04], // crown
+      // Mid cluster
+      [0.272, 0.55, 0.022, 0.23],
+      [0.294, 0.50, 0.025, 0.28],
+      [0.319, 0.53, 0.020, 0.25],
+      // AON Center area
+      [0.339, 0.40, 0.030, 0.38],
+      [0.339, 0.36, 0.010, 0.06], // top block
+      // More mid buildings  
+      [0.369, 0.55, 0.022, 0.23],
+      [0.391, 0.52, 0.025, 0.26],
+      // Trump Tower — tall, distinctive
+      [0.416, 0.30, 0.032, 0.48],
+      [0.420, 0.25, 0.012, 0.07], // step
+      [0.422, 0.20, 0.008, 0.07], // spire base
+      [0.424, 0.14, 0.003, 0.08], // spire
+      // John Hancock area
+      [0.450, 0.55, 0.020, 0.23],
+      [0.470, 0.50, 0.022, 0.28],
+      // 875 N Michigan (Hancock) — tall with X bracing
+      [0.492, 0.32, 0.034, 0.46],
+      [0.492, 0.29, 0.005, 0.05], // left antenna
+      [0.520, 0.27, 0.005, 0.07], // right antenna (taller)
+      // Buildings continuing right
+      [0.527, 0.52, 0.022, 0.26],
+      [0.549, 0.56, 0.020, 0.22],
+      [0.569, 0.54, 0.024, 0.24],
+      // Tribune Tower / Wrigley area
+      [0.593, 0.50, 0.028, 0.28],
+      [0.593, 0.46, 0.012, 0.06], // gothic crown
+      [0.621, 0.55, 0.020, 0.23],
+      [0.641, 0.52, 0.022, 0.26],
+      // One Magnificent Mile area
+      [0.663, 0.45, 0.030, 0.33],
+      [0.663, 0.40, 0.010, 0.07],
+      // Tapering off east
+      [0.693, 0.54, 0.022, 0.24],
+      [0.715, 0.57, 0.020, 0.21],
+      [0.735, 0.60, 0.022, 0.18],
+      [0.757, 0.62, 0.020, 0.16],
+      [0.777, 0.64, 0.025, 0.14],
+      [0.802, 0.66, 0.020, 0.12],
+      [0.822, 0.68, 0.022, 0.10],
+      [0.844, 0.70, 0.030, 0.08],
+      [0.874, 0.71, 0.025, 0.07],
+      [0.899, 0.72, 0.030, 0.06],
+      [0.929, 0.73, 0.040, 0.05],
+      [0.969, 0.74, 0.031, 0.04],
+    ];
+
+    // Willis Tower windows pattern
+    const WILLIS_WINDOWS = [];
+    for(let row=0; row<18; row++) {
+      for(let col=0; col<3; col++) {
+        WILLIS_WINDOWS.push({r:row,c:col,on:Math.random()>0.3});
+      }
+    }
+
+    // Hancock X-bracing positions
+    const HANCOCK_X = [
+      {y1:0.30,y2:0.40},{y1:0.40,y2:0.50},{y1:0.50,y2:0.60},{y1:0.60,y2:0.70}
+    ];
+
+    const WATER_LAYERS = [
+      {speed:0.006, amp:22, freq:0.008, phase:0,    yBase:0.745, col:'rgba(2,18,52,0.95)'},
+      {speed:0.009, amp:18, freq:0.013, phase:1.8,  yBase:0.775, col:'rgba(3,22,62,0.95)'},
+      {speed:0.013, amp:14, freq:0.018, phase:3.5,  yBase:0.800, col:'rgba(4,26,72,0.97)', foam:true},
+      {speed:0.018, amp:11, freq:0.024, phase:0.8,  yBase:0.820, col:'rgba(5,30,80,0.98)', foam:true},
+      {speed:0.024, amp:8,  freq:0.032, phase:2.2,  yBase:0.840, col:'rgba(4,22,65,1)',     foam:true},
+      {speed:0.032, amp:5,  freq:0.042, phase:1.0,  yBase:0.858, col:'rgba(3,16,50,1)',     foam:true},
+      {speed:0.042, amp:3,  freq:0.055, phase:4.0,  yBase:0.872, col:'rgba(2,12,40,1)'},
+    ];
+
+    const STARS = Array.from({length:80}, () => ({
+      x: Math.random(), y: Math.random() * 0.45,
+      r: Math.random() * 1.2 + 0.3,
+      phase: Math.random() * Math.PI * 2,
+      speed: 0.4 + Math.random() * 0.8,
+    }));
+
+    // Glistening sparkles on water
+    const SPARKLES = Array.from({length:35}, () => ({
+      x: 0.05 + Math.random() * 0.9,
+      y: 0.78 + Math.random() * 0.15,
+      phase: Math.random() * Math.PI * 2,
+      speed: 0.8 + Math.random() * 1.5,
+      size: 0.5 + Math.random() * 2.5,
+    }));
+
+    function drawSky(W, H) {
+      // Night sky gradient
+      const sky = ctx.createLinearGradient(0, 0, 0, H * 0.75);
+      sky.addColorStop(0,   '#020608');
+      sky.addColorStop(0.2, '#030c1a');
+      sky.addColorStop(0.5, '#051428');
+      sky.addColorStop(0.75,'#081c38');
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, W, H);
+
+      // Atmospheric glow near horizon (city light pollution)
+      const horizonGlow = ctx.createRadialGradient(W*0.42, H*0.72, 0, W*0.42, H*0.72, W*0.55);
+      horizonGlow.addColorStop(0, 'rgba(255,200,100,0.08)');
+      horizonGlow.addColorStop(0.4,'rgba(180,120,60,0.04)');
+      horizonGlow.addColorStop(1, 'transparent');
+      ctx.fillStyle = horizonGlow;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    function drawStars(W, H) {
+      STARS.forEach(s => {
+        const twinkle = 0.3 + 0.7 * Math.abs(Math.sin(t * s.speed + s.phase));
+        ctx.globalAlpha = twinkle * 0.75;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    function drawMoon(W, H) {
+      const mx = W * 0.82, my = H * 0.14;
+
+      // Outer glow
+      const glow = ctx.createRadialGradient(mx, my, 0, mx, my, 100);
+      glow.addColorStop(0,   'rgba(255,240,180,0.15)');
+      glow.addColorStop(0.3, 'rgba(255,220,150,0.06)');
+      glow.addColorStop(1,   'transparent');
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, W, H);
+
+      // Moon disc
+      ctx.shadowColor = 'rgba(255,240,180,0.7)';
+      ctx.shadowBlur = 25;
+      const moonGrad = ctx.createRadialGradient(mx-3, my-3, 2, mx, my, 20);
+      moonGrad.addColorStop(0,   '#fffde0');
+      moonGrad.addColorStop(0.6, '#f5d98a');
+      moonGrad.addColorStop(1,   '#c9a84c');
+      ctx.fillStyle = moonGrad;
+      ctx.beginPath();
+      ctx.arc(mx, my, 20, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Moon reflection on water - shimmering column
+      const refX = mx;
+      const refTop = H * 0.74;
+      const refWidth = 18 + 6 * Math.sin(t * 1.5);
+      const refGrad = ctx.createLinearGradient(0, refTop, 0, H);
+      refGrad.addColorStop(0, 'rgba(201,168,76,0.45)');
+      refGrad.addColorStop(0.4,'rgba(201,168,76,0.20)');
+      refGrad.addColorStop(1, 'rgba(201,168,76,0.02)');
+
+      // Wavy reflection
+      ctx.beginPath();
+      for(let y = refTop; y < H; y += 2) {
+        const progress = (y - refTop) / (H - refTop);
+        const waver = Math.sin(y * 0.08 + t * 3) * refWidth * 0.4 * progress;
+        const w = refWidth * (1 + progress * 0.8);
+        if(y === refTop) ctx.moveTo(refX - w + waver, y);
+        else ctx.lineTo(refX - w + waver, y);
+      }
+      for(let y = H; y >= refTop; y -= 2) {
+        const progress = (y - refTop) / (H - refTop);
+        const waver = Math.sin(y * 0.08 + t * 3) * refWidth * 0.4 * progress;
+        const w = refWidth * (1 + progress * 0.8);
+        ctx.lineTo(refX + w + waver, y);
+      }
+      ctx.closePath();
+      ctx.fillStyle = refGrad;
+      ctx.fill();
+    }
+
+    function drawSkyline(W, H) {
+      const horizonY = H * 0.74;
+
+      // Building glow (city ambient light)
+      SKYLINE.forEach(([bx, by, bw, bh]) => {
+        const x = bx * W, y = by * H, w = bw * W, h = bh * H;
+        if(h > H * 0.3) { // only tall buildings get glow
+          const g = ctx.createRadialGradient(x+w/2, y, 0, x+w/2, horizonY, w*3);
+          g.addColorStop(0, 'rgba(255,200,100,0.03)');
+          g.addColorStop(1, 'transparent');
+          ctx.fillStyle = g;
+          ctx.fillRect(x-w*2, y, w*5, horizonY-y);
+        }
+      });
+
+      // Draw buildings
+      SKYLINE.forEach(([bx, by, bw, bh], idx) => {
+        const x = bx * W, y = by * H, w = bw * W, h = bh * H;
+
+        // Building gradient - slightly lighter at top (reflects sky)
+        const bgrad = ctx.createLinearGradient(x, y, x, y + h);
+        bgrad.addColorStop(0,   'rgba(12,22,45,0.96)');
+        bgrad.addColorStop(0.3, 'rgba(8,16,36,0.98)');
+        bgrad.addColorStop(1,   'rgba(5,10,25,1)');
+        ctx.fillStyle = bgrad;
+        ctx.fillRect(x, y, w, h);
+
+        // Edge highlight (glass reflection)
+        ctx.fillStyle = 'rgba(180,200,255,0.04)';
+        ctx.fillRect(x, y, 1.5, h);
+      });
+
+      // Willis Tower special - windows
+      const wx = 0.155 * W, wy = 0.28 * H, ww = 0.038 * W, wh = 0.50 * H;
+      WILLIS_WINDOWS.forEach(({r, c, on}) => {
+        if(!on && Math.random() > 0.998) { /* occasional flicker */ }
+        const flicker = on ? (0.7 + 0.3 * Math.abs(Math.sin(t * 0.2 + r * 0.3 + c * 0.7))) : 0;
+        if(flicker > 0) {
+          ctx.fillStyle = `rgba(255,220,140,${flicker * 0.5})`;
+          ctx.fillRect(wx + c * (ww/3) + 1, wy + r * (wh/20) + 2, ww/3 - 2, wh/20 - 2);
+        }
+      });
+
+      // Hancock X-bracing
+      const hx = 0.492 * W, hy_top = 0.32 * H, hw = 0.034 * W, hh = 0.46 * H;
+      ctx.strokeStyle = 'rgba(20,35,70,0.9)';
+      ctx.lineWidth = 1.5;
+      HANCOCK_X.forEach(({y1, y2}) => {
+        const yTop = hy_top + (y1 - 0.30) * hh / 0.46;
+        const yBot = hy_top + (y2 - 0.30) * hh / 0.46;
+        ctx.beginPath(); ctx.moveTo(hx, yTop); ctx.lineTo(hx + hw, yBot); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(hx + hw, yTop); ctx.lineTo(hx, yBot); ctx.stroke();
+      });
+
+      // Random lit windows across skyline
+      const winPositions = [
+        [0.08,0.60],[0.10,0.58],[0.12,0.62],
+        [0.245,0.50],[0.250,0.48],[0.252,0.52],
+        [0.340,0.45],[0.345,0.43],[0.348,0.47],
+        [0.420,0.35],[0.425,0.33],[0.428,0.37],
+        [0.500,0.40],[0.505,0.38],[0.508,0.42],
+        [0.600,0.53],[0.605,0.51],[0.608,0.55],
+        [0.665,0.48],[0.670,0.46],[0.672,0.50],
+        [0.220,0.55],[0.295,0.52],[0.370,0.58],
+        [0.640,0.56],[0.695,0.57],[0.720,0.60],
+      ];
+      winPositions.forEach(([wx, wy]) => {
+        const flicker = 0.4 + 0.6 * Math.abs(Math.sin(t * 0.15 + wx * 15 + wy * 8));
+        ctx.fillStyle = `rgba(255,215,130,${flicker * 0.55})`;
+        ctx.fillRect(wx * W, wy * H, 2.5, 3.5);
+      });
+
+      // 311 S Wacker crown glow (lit at night)
+      const crownX = 0.248 * W, crownY = 0.38 * H;
+      const crownGlow = ctx.createRadialGradient(crownX, crownY, 0, crownX, crownY, 20);
+      crownGlow.addColorStop(0, 'rgba(100,180,255,0.4)');
+      crownGlow.addColorStop(1, 'transparent');
+      ctx.fillStyle = crownGlow;
+      ctx.fillRect(crownX - 20, crownY - 10, 40, 30);
+
+      // Willis antenna lights (red blinking)
+      const antennaY = 0.16 * H + Math.sin(t * 2) * 0.5;
+      ctx.shadowColor = 'rgba(255,60,60,0.8)';
+      ctx.shadowBlur = 8;
+      ctx.fillStyle = `rgba(255,60,60,${0.6 + 0.4 * Math.sin(t * 1.5)})`;
+      ctx.beginPath();
+      ctx.arc(0.178 * W, antennaY * 1.0, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Horizon glow line
+      const horizGrad = ctx.createLinearGradient(0, horizonY - 3, 0, horizonY + 8);
+      horizGrad.addColorStop(0, 'rgba(180,140,60,0.25)');
+      horizGrad.addColorStop(0.5,'rgba(120,90,30,0.15)');
+      horizGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = horizGrad;
+      ctx.fillRect(0, horizonY - 3, W, 11);
+    }
+
+    function waveY(layer, x) {
+      const y = layer.yBase * H
+        + layer.amp * Math.sin(layer.freq * x + t * layer.speed * 100 + layer.phase)
+        + layer.amp * 0.3 * Math.sin(layer.freq * 1.9 * x - t * layer.speed * 70 + layer.phase + 1.5)
+        + layer.amp * 0.15 * Math.sin(layer.freq * 3.1 * x + t * layer.speed * 120 + layer.phase + 3);
+      return y;
+    }
+
+    function drawWater(W, H) {
+      // Deep water base
+      const deepGrad = ctx.createLinearGradient(0, H * 0.74, 0, H);
+      deepGrad.addColorStop(0, 'rgba(4,20,55,0.6)');
+      deepGrad.addColorStop(1, '#010508');
+      ctx.fillStyle = deepGrad;
+      ctx.fillRect(0, H * 0.72, W, H * 0.28);
+
+      // Wave layers
+      WATER_LAYERS.forEach(layer => {
+        ctx.beginPath();
+        ctx.moveTo(0, H);
+        for(let x = 0; x <= W; x += 2) {
+          ctx.lineTo(x, waveY(layer, x));
+        }
+        ctx.lineTo(W, H);
+        ctx.closePath();
+        ctx.fillStyle = layer.col;
+        ctx.fill();
+
+        // Foam crests
+        if(layer.foam) {
+          ctx.beginPath();
+          for(let x = 0; x <= W; x += 2) {
+            const foam = 2.2 * Math.abs(Math.sin(layer.freq * 3.5 * x + t * layer.speed * 90));
+            const y = waveY(layer, x) - foam;
+            if(x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          const alpha = 0.06 + 0.04 * Math.abs(Math.sin(t * 0.5));
+          ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        }
+      });
+    }
+
+    function drawSparkles(W, H) {
+      SPARKLES.forEach(s => {
+        const glint = Math.pow(Math.abs(Math.sin(t * s.speed + s.phase)), 4);
+        if(glint > 0.3) {
+          const x = s.x * W + Math.sin(t * 0.5 + s.phase) * 8;
+          const y = s.y * H + Math.sin(t * s.speed * 0.3 + s.phase) * 4;
+          const alpha = (glint - 0.3) / 0.7;
+
+          // Star shape sparkle
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.globalAlpha = alpha * 0.85;
+
+          // Cross sparkle
+          ctx.strokeStyle = '#c9a84c';
+          ctx.lineWidth = s.size * 0.4;
+          ctx.shadowColor = 'rgba(201,168,76,0.8)';
+          ctx.shadowBlur = s.size * 3;
+          ctx.beginPath();
+          ctx.moveTo(-s.size * 2, 0); ctx.lineTo(s.size * 2, 0);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(0, -s.size * 1.5); ctx.lineTo(0, s.size * 1.5);
+          ctx.stroke();
+
+          // Center dot
+          ctx.fillStyle = '#fffde0';
+          ctx.beginPath();
+          ctx.arc(0, 0, s.size * 0.35, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.restore();
+        }
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    function drawBoat(W, H) {
+      // Simple elegant boat silhouette on the horizon
+      const bx = W * 0.15, by = H * 0.735;
+      ctx.save();
+      ctx.fillStyle = 'rgba(3,10,28,0.95)';
+
+      // Hull
+      ctx.beginPath();
+      ctx.moveTo(bx - 22, by);
+      ctx.quadraticCurveTo(bx, by + 6, bx + 22, by);
+      ctx.lineTo(bx + 18, by - 5);
+      ctx.lineTo(bx - 18, by - 5);
+      ctx.closePath();
+      ctx.fill();
+
+      // Mast
+      ctx.fillRect(bx - 1, by - 32, 2, 27);
+
+      // Small flag
+      ctx.fillStyle = 'rgba(201,168,76,0.6)';
+      ctx.beginPath();
+      ctx.moveTo(bx, by - 32);
+      ctx.lineTo(bx + 8, by - 28);
+      ctx.lineTo(bx, by - 24);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    const frame = () => {
+      t += 0.010;
+      ctx.clearRect(0, 0, W, H);
+      drawSky(W, H);
+      drawStars(W, H);
+      drawMoon(W, H);
+      drawSkyline(W, H);
+      drawWater(W, H);
+      drawSparkles(W, H);
+      drawBoat(W, H);
+          animRef.current = requestAnimationFrame(frame);
+    }
+
+    animRef.current = requestAnimationFrame(frame);
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      window.removeEventListener('resize', resize);
+    };
+  }, []);
+
   return (
-    <section style={{minHeight:"100vh",position:"relative",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"130px 24px 80px",background:"#030810"}}>
-
-      {/* Real wave video background */}
-      <video autoPlay muted loop playsInline disablePictureInPicture style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",opacity:0.65,zIndex:0,pointerEvents:"none"}}>
-        <source src="/waves.mp4" type="video/mp4"/>
-      </video>
-
-      {/* Overlay - light enough to see waves, dark enough for text */}
-      <div style={{position:"absolute",inset:0,zIndex:1,background:"linear-gradient(to bottom,rgba(6,13,26,0.55) 0%,rgba(6,13,26,0.30) 40%,rgba(6,13,26,0.60) 100%)"}}/>
-
-      {/* Gold shimmer at top */}
-      <div style={{position:"absolute",top:0,left:0,right:0,height:3,background:"linear-gradient(90deg,transparent,#c9a84c,transparent)",zIndex:2,opacity:0.6}}/>
-
-      <div style={{position:"relative",zIndex:3,maxWidth:780}} className="fu">
+    <section style={{minHeight:"100vh",position:"relative",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"130px 24px 80px",background:"#020608"}}>
+      <canvas ref={canvasRef} style={{position:"absolute",inset:0,width:"100%",height:"100%",display:"block"}}/>
+      <div style={{position:"relative",zIndex:10,maxWidth:780}} className="fu">
         <div style={{fontSize:11,letterSpacing:5,color:"#c9a84c",textTransform:"uppercase",marginBottom:18,fontWeight:500}}>Chicago · Lake Michigan · 31st Street Harbor</div>
-        <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(48px,8vw,92px)",fontWeight:300,lineHeight:1.06,marginBottom:22,letterSpacing:-1,textShadow:"0 2px 40px rgba(0,0,0,.5)"}}>
+        <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(46px,8vw,88px)",fontWeight:300,lineHeight:1.06,marginBottom:22,letterSpacing:-1,textShadow:"0 2px 30px rgba(0,0,0,.9)"}}>
           Experience<br/><span style={{fontStyle:"italic",color:"#c9a84c"}}>Lake Michigan</span><br/>Like Never Before
         </h1>
-        <p style={{fontSize:17,color:"rgba(255,255,255,.75)",fontWeight:300,maxWidth:500,margin:"0 auto 36px",lineHeight:1.75,textShadow:"0 1px 12px rgba(0,0,0,.6)"}}>
+        <p style={{fontSize:16,color:"rgba(255,255,255,.85)",fontWeight:300,maxWidth:480,margin:"0 auto 36px",lineHeight:1.8,textShadow:"0 1px 10px rgba(0,0,0,.9)"}}>
           Whether you are celebrating something big or just want to unwind — our charters are designed to give you the ultimate Chicago experience.
         </p>
-        <div style={{display:"flex",gap:14,justifyContent:"center",flexWrap:"wrap"}}>
-          <button className="btn-g" onClick={()=>startBook()} style={{background:"#c9a84c",color:"#0a0f1e",border:"none",padding:"15px 38px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600,letterSpacing:2,textTransform:"uppercase",transition:"all .22s",boxShadow:"0 8px 32px rgba(201,168,76,.35)"}}>Book Your Charter</button>
-          <button className="btn-o" onClick={()=>setPage("dock")} style={{background:"rgba(6,13,26,0.5)",color:"#4aff9a",border:"1px solid rgba(74,255,154,.4)",padding:"15px 38px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:400,letterSpacing:1,transition:"all .22s",backdropFilter:"blur(8px)"}}>At The Dock</button>
+        <div style={{display:"flex",gap:14,justifyContent:"center",flexWrap:"wrap",marginBottom:52}}>
+          <button className="btn-g" onClick={()=>startBook()} style={{background:"#c9a84c",color:"#0a0f1e",border:"none",padding:"14px 36px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600,letterSpacing:2,textTransform:"uppercase",boxShadow:"0 8px 28px rgba(201,168,76,.4)",transition:"all .22s"}}>Book Your Charter</button>
+          <button className="btn-o" onClick={()=>setPage("dock")} style={{background:"rgba(4,10,22,.55)",color:"#4aff9a",border:"1px solid rgba(74,255,154,.4)",padding:"14px 36px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,letterSpacing:1,backdropFilter:"blur(8px)",transition:"all .22s"}}>At The Dock</button>
         </div>
-        <div style={{marginTop:56,display:"flex",gap:40,justifyContent:"center",flexWrap:"wrap"}}>
+        <div style={{display:"flex",gap:40,justifyContent:"center",flexWrap:"wrap"}}>
           {[["2","Vessels"],["$300","Per Hour"],["12","Max Guests"],["31st St","Harbor"]].map(([n,l])=>(
             <div key={l} style={{textAlign:"center"}}>
-              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:30,fontWeight:600,color:"#c9a84c",textShadow:"0 2px 16px rgba(201,168,76,.4)"}}>{n}</div>
+              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:28,fontWeight:600,color:"#c9a84c",textShadow:"0 2px 14px rgba(201,168,76,.5)"}}>{n}</div>
               <div style={{fontSize:10,color:"rgba(255,255,255,.5)",letterSpacing:2.5,textTransform:"uppercase",marginTop:3}}>{l}</div>
             </div>
           ))}
@@ -473,7 +906,6 @@ export function HeroSection({ startBook, setPage }) {
     </section>
   );
 }
-
 // ── SMART CALENDAR ────────────────────────────────────────────────────────────
 export function SmartCal({ sel, onSel, vesselId, hours, bookedSlots, loadingSlots }) {
   const today = new Date();
