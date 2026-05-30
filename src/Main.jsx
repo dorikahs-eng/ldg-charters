@@ -465,7 +465,7 @@ function LDGChartersApp() {
         <div style={{textAlign:"center",marginTop:20,fontSize:10,color:"rgba(255,255,255,.15)"}}>{new Date().getFullYear()} LDG Charters · Chicago Boat Rental · Lake Michigan Charter · 31st Street Harbor</div>
       </footer>
     </div>
-    </>;
+    </>);
 
   // ── BOOKING FLOW ──
   return (
