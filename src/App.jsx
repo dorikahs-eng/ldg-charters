@@ -434,7 +434,7 @@ export function WaveIntro({ onDone }) {
 }
 
 // ── HERO SECTION ──────────────────────────────────────────────────────────────
-export export function HeroSection({ startBook, setPage }) {
+export function HeroSection({ startBook, setPage }) {
   return (
     <section style={{minHeight:"100vh",position:"relative",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"130px 24px 80px"}}>
 
