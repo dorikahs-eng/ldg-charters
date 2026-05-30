@@ -188,6 +188,15 @@ export function AtTheDockPage({ onBack }) {
           {step<5&&<button disabled={!canNext()} onClick={()=>setStep(step+1)} style={{background:canNext()?"#4aff9a":"rgba(255,255,255,.08)",color:canNext()?"#0a0f1e":"rgba(255,255,255,.18)",border:"none",padding:"11px 32px",borderRadius:6,cursor:canNext()?"pointer":"default",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600,letterSpacing:1.5,textTransform:"uppercase",transition:"all .2s"}}>Continue</button>}
         </div>}
       </div>
+      {/* Mobile bottom nav */}
+      <div className="admin-bottom-nav">
+        {[["📋","Charters","charters"],["⚓","Dock","dock"],["💰","Revenue","revenue"],["👤","Account","account"]].map(([icon,label,id])=>(
+          <div key={id} onClick={()=>id==="account"?handleLogout():setTab(id)} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:3,padding:"6px 0",cursor:"pointer",color:tab===id?"#c9a84c":"rgba(255,255,255,.4)",fontSize:10,letterSpacing:.5}}>
+            <span style={{fontSize:20}}>{icon}</span>
+            <span>{label}</span>
+          </div>
+        ))}
+      </div>
     </div>
     </>
   );
@@ -228,6 +237,68 @@ export function AdminDashboard() {
   const updateField=async(id,field,value)=>{try{const col=tab==="dock"?"dock_bookings":"bookings";await updateDoc(doc(db,col,id),{[field]:value});setBookings(prev=>prev.map(b=>b.id===id?{...b,[field]:value}:b));}catch(e){console.error(e);}};
   const handleLogout=async()=>{await signOut(auth);setAuthed(false);};
 
+  const sendReminder=async(b)=>{
+    const isCharter = tab !== "dock";
+    const params={
+      customer_name: b.clientName,
+      customer_email: b.clientEmail,
+      customer_phone: b.clientPhone,
+      vessel: b.vessel || "At The Dock",
+      charter_date: fmtDate(isCharter ? b.charterDate : b.eventDate),
+      start_time: b.startTime,
+      end_time: b.endTime,
+      duration: b.duration,
+      destination: b.destination || b.celebration || "",
+      total_price: fmtCurrency(b.totalPrice),
+      balance: fmtCurrency(b.balance || 0),
+      payment_option: b.paymentOption || "deposit",
+      reminder_type: "48_hour",
+    };
+    try{
+      await fetch("https://api.emailjs.com/api/v1.0/email/send",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          service_id:"service_0se585c",
+          template_id:"template_t4td6qc",
+          user_id:"jsEvKIVZ10ZQqt-4r",
+          template_params:{
+            ...params,
+            subject_override:`REMINDER: Your LDG Charter is in 48 hours — ${fmtDate(isCharter?b.charterDate:b.eventDate)}`,
+            message_type:"reminder",
+          }
+        })
+      });
+      alert("Reminder sent to " + b.clientEmail);
+    }catch(e){
+      alert("Failed to send reminder. Check connection.");
+    }
+  };
+
+  const sendThankYou=async(b)=>{
+    try{
+      await fetch("https://api.emailjs.com/api/v1.0/email/send",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          service_id:"service_0se585c",
+          template_id:"template_t4td6qc",
+          user_id:"jsEvKIVZ10ZQqt-4r",
+          template_params:{
+            customer_name: b.clientName,
+            customer_email: b.clientEmail,
+            vessel: b.vessel || "At The Dock",
+            charter_date: fmtDate(b.charterDate||b.eventDate),
+            subject_override:`Thank you for sailing with LDG Charters!`,
+            message_type:"thank_you",
+            total_price: fmtCurrency(b.totalPrice),
+          }
+        })
+      });
+      alert("Thank you email sent to " + b.clientEmail);
+    }catch(e){
+      alert("Failed to send email.");
+    }
+  };
+
   if(checking)return <div style={{background:"#0a0f1e",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",color:"#c9a84c",fontFamily:"'DM Sans',sans-serif"}}>Loading...</div>;
   if(!authed)return <AdminLogin onLogin={()=>{setAuthed(true);loadData("charters");}}/>;
 
@@ -237,10 +308,24 @@ export function AdminDashboard() {
   const revenue=bookings.filter(b=>b.paymentStatus==="paid"||b.paymentStatus==="deposit_paid").reduce((s,b)=>s+(b.paymentStatus==="paid"?(b.totalPrice||0):500),0);
   const filtered=bookings.filter(b=>{const mf=filter==="all"||b.bookingStatus===filter||(filter==="pending"&&!b.bookingStatus);const q=search.toLowerCase();const ms=!q||(b.clientName||"").toLowerCase().includes(q)||(b.vessel||"").toLowerCase().includes(q)||(b.celebration||"").toLowerCase().includes(q);return mf&&ms;});
 
+  const TABS = [["📋","Charters","charters"],["⚓","Dock","dock"],["💰","Revenue","revenue"]];
+
   return(
-    <><style>{G}{`.arow:hover{background:rgba(255,255,255,.03)!important;cursor:pointer;}`}</style>
-    <div style={{fontFamily:"'DM Sans',sans-serif",display:"flex",height:"100vh",background:"#070c18",color:"#fff",overflow:"hidden"}}>
-      <div style={{width:220,background:"#0a0f1e",borderRight:"1px solid rgba(255,255,255,.07)",display:"flex",flexDirection:"column",flexShrink:0}}>
+    <><style>{G}{`
+      .arow:hover{background:rgba(255,255,255,.03)!important;cursor:pointer;}
+      .admin-wrap{display:flex;height:100vh;background:#070c18;color:#fff;overflow:hidden;font-family:'DM Sans',sans-serif;}
+      .admin-sidebar{width:220px;background:#0a0f1e;border-right:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;flex-shrink:0;}
+      .admin-main{flex:1;overflow:auto;display:flex;flex-direction:column;}
+      .admin-bottom-nav{display:none;}
+      @media(max-width:700px){
+        .admin-sidebar{display:none;}
+        .admin-bottom-nav{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:100;background:#0a0f1e;border-top:1px solid rgba(255,255,255,.1);padding:6px 0 10px;}
+        .admin-main{padding-bottom:70px;}
+        .admin-wrap{overflow:auto;height:100%;}
+      }
+    `}</style>
+    <div className="admin-wrap">
+      <div className="admin-sidebar">
         <div style={{padding:"28px 20px 20px"}}><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontWeight:600,letterSpacing:2}}>LDG <span style={{color:"#c9a84c"}}>ADMIN</span></div><div style={{fontSize:10,color:"rgba(255,255,255,.3)",marginTop:3}}>Charter Management</div></div>
         <div style={{flex:1,padding:"0 12px"}}>
           {[["📋","Charter Bookings","charters"],["⚓","At The Dock","dock"],["💰","Revenue","revenue"],["⚙️","Settings","settings"]].map(([icon,label,id])=>(
@@ -250,14 +335,14 @@ export function AdminDashboard() {
         <div style={{padding:20,borderTop:"1px solid rgba(255,255,255,.07)"}}><div style={{fontSize:11,color:"rgba(255,255,255,.4)",marginBottom:6}}>{user?.email}</div><button onClick={handleLogout} style={{background:"transparent",border:"1px solid rgba(255,255,255,.15)",color:"rgba(255,255,255,.5)",padding:"7px 14px",borderRadius:6,cursor:"pointer",fontSize:12,fontFamily:"inherit",width:"100%"}}>Sign Out</button></div>
       </div>
 
-      <div style={{flex:1,overflow:"auto"}}>
-        <div style={{padding:"24px 32px",borderBottom:"1px solid rgba(255,255,255,.07)",display:"flex",justifyContent:"space-between",alignItems:"center",background:"#0a0f1e",position:"sticky",top:0,zIndex:10}}>
+      <div className="admin-main">
+        <div style={{padding:"16px 20px",borderBottom:"1px solid rgba(255,255,255,.07)",display:"flex",justifyContent:"space-between",alignItems:"center",background:"#0a0f1e",position:"sticky",top:0,zIndex:10,flexWrap:"wrap",gap:8}}>
           <div><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontWeight:600}}>{tab==="dock"?"At The Dock":tab==="revenue"?"Revenue":"Charter Bookings"}</div><div style={{fontSize:12,color:"rgba(255,255,255,.35)",marginTop:2}}>{bookings.length} total reservations</div></div>
           <button onClick={()=>loadData(tab)} style={{background:"rgba(201,168,76,.1)",border:"1px solid rgba(201,168,76,.3)",color:"#c9a84c",padding:"8px 18px",borderRadius:8,cursor:"pointer",fontSize:13,fontFamily:"inherit",fontWeight:500}}>↻ Refresh</button>
         </div>
 
-        <div style={{padding:32}}>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:16,marginBottom:28}}>
+        <div style={{padding:"20px 16px"}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:12,marginBottom:20}}>
             {[["Total",bookings.length,"#c9a84c","rgba(201,168,76,.08)"],["This Month",thisMonth,"#4a9eff","rgba(74,158,255,.08)"],["Pending",pending,"#ffc832","rgba(255,190,50,.08)"],["Confirmed",confirmed,"#3aaa66","rgba(58,170,102,.08)"]].map(([label,val,color,bg])=>(
               <div key={label} style={{background:bg,border:`1px solid ${color}33`,borderRadius:12,padding:"18px 20px"}}><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:32,fontWeight:600,color,lineHeight:1}}>{val}</div><div style={{fontSize:11,color:"rgba(255,255,255,.4)",marginTop:4}}>{label}</div></div>
             ))}
@@ -322,7 +407,11 @@ export function AdminDashboard() {
                                 <div style={{fontSize:10,letterSpacing:2,color:"#c9a84c",textTransform:"uppercase",marginBottom:6}}>Admin Notes</div>
                                 <textarea defaultValue={b.adminNotes||""} onBlur={e=>updateField(b.id,"adminNotes",e.target.value)} placeholder="Add notes..." style={{width:"100%",maxWidth:500,background:"rgba(255,255,255,.04)",border:"1px solid rgba(255,255,255,.1)",borderRadius:8,padding:"10px 14px",color:"#fff",fontFamily:"'DM Sans',sans-serif",fontSize:13,resize:"vertical",minHeight:60,outline:"none"}}/>
                               </div>
-                              <button onClick={()=>generatePDF(b)} style={{background:"#c9a84c",color:"#0a0f1e",border:"none",padding:"10px 20px",borderRadius:8,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600,letterSpacing:1,marginTop:20,whiteSpace:"nowrap"}}>📄 Download Agreement PDF</button>
+              <div style={{display:"flex",gap:10,flexWrap:"wrap",marginTop:14}}>
+                <button onClick={()=>generatePDF(b)} style={{background:"#c9a84c",color:"#0a0f1e",border:"none",padding:"9px 18px",borderRadius:6,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:600,letterSpacing:.5,whiteSpace:"nowrap"}}>📄 PDF</button>
+                <button onClick={()=>sendReminder(b)} style={{background:"rgba(74,158,255,.1)",border:"1px solid rgba(74,158,255,.3)",color:"#4a9eff",padding:"9px 18px",borderRadius:6,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:600,whiteSpace:"nowrap"}}>⏰ Send 48hr Reminder</button>
+                <button onClick={()=>sendThankYou(b)} style={{background:"rgba(58,170,102,.1)",border:"1px solid rgba(58,170,102,.3)",color:"#3aaa66",padding:"9px 18px",borderRadius:6,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:600,whiteSpace:"nowrap"}}>🙏 Send Thank You</button>
+              </div>
                             </div>
                           </td>
                         </tr>
@@ -334,6 +423,15 @@ export function AdminDashboard() {
             )}
           </div>
         </div>
+      </div>
+      {/* Mobile bottom nav */}
+      <div className="admin-bottom-nav">
+        {[["📋","Charters","charters"],["⚓","Dock","dock"],["💰","Revenue","revenue"],["👤","Account","account"]].map(([icon,label,id])=>(
+          <div key={id} onClick={()=>id==="account"?handleLogout():setTab(id)} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:3,padding:"6px 0",cursor:"pointer",color:tab===id?"#c9a84c":"rgba(255,255,255,.4)",fontSize:10,letterSpacing:.5}}>
+            <span style={{fontSize:20}}>{icon}</span>
+            <span>{label}</span>
+          </div>
+        ))}
       </div>
     </div>
     </>
