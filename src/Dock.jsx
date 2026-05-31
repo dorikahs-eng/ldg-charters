@@ -260,7 +260,6 @@ export function AtTheDockPage({ onBack }) {
 
         </div>
       </div>
-    </div>
     </>
   );
 }
