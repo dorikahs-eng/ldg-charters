@@ -243,7 +243,7 @@ export function AtTheDockPage({ onBack }) {
           {step<6&&<button disabled={!canNext()} onClick={goNext} style={{background:canNext()?"#4aff9a":"rgba(255,255,255,.08)",color:canNext()?"#0a0f1e":"rgba(255,255,255,.18)",border:"none",padding:"11px 32px",borderRadius:6,cursor:canNext()?"pointer":"default",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600,letterSpacing:1.5,textTransform:"uppercase",transition:"all .2s"}}>Continue</button>}
         </div>}
       </div>
-</div>
+    </div>
     </div>
     </>
   );
