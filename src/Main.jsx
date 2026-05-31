@@ -374,7 +374,7 @@ function LDGChartersApp() {
           <div style={{textAlign:"center",marginBottom:40}}>
             <div style={{fontSize:10,letterSpacing:4,color:"#4aff9a",textTransform:"uppercase",marginBottom:10}}>New Experience</div>
             <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(32px,5vw,52px)",fontWeight:400}}>At The <span style={{fontStyle:"italic",color:"#4aff9a"}}>Dock</span></h2>
-            <p style={{fontSize:14,color:"rgba(255,255,255,.45)",marginTop:10,maxWidth:500,margin:"10px auto 0"}}>${DOCK_RATE}/hr dockside at 31st Street Harbor - No deposit required</p>
+            <p style={{fontSize:14,color:"rgba(255,255,255,.45)",marginTop:10,maxWidth:500,margin:"10px auto 0"}}>${DOCK_RATE}/hr dockside at 31st Street Harbor - $50 non-refundable deposit</p>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:32,alignItems:"start"}}>
             <div style={{display:"flex",flexDirection:"column",gap:16,paddingTop:8}}>
@@ -384,7 +384,7 @@ function LDGChartersApp() {
                 <button className="btn-g" onClick={()=>setPage("dock")} style={{background:"#4aff9a",color:"#0a0f1e",border:"none",padding:"14px 32px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600,letterSpacing:2,textTransform:"uppercase",transition:"all .22s",boxShadow:"0 6px 24px rgba(74,255,154,.25)"}}>Reserve Your Spot</button>
                 <div style={{display:"flex",alignItems:"center",gap:8}}>
                   <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:32,fontWeight:600,color:"#4aff9a"}}>${DOCK_RATE}</div>
-                  <div style={{fontSize:12,color:"rgba(255,255,255,.4)",lineHeight:1.5}}>per hour - no deposit</div>
+                  <div style={{fontSize:12,color:"rgba(255,255,255,.4)",lineHeight:1.5}}>per hour · $50 non-refundable deposit</div>
                 </div>
               </div>
             </div>
@@ -452,7 +452,7 @@ function LDGChartersApp() {
             ))}
           </div>
           <p style={{color:"rgba(255,255,255,.4)",fontSize:13,marginBottom:8}}>$300/hr - 2 hr minimum - $500 non-refundable deposit - Up to 12 guests</p>
-          <p style={{color:"rgba(255,255,255,.3)",fontSize:12,marginBottom:32}}>At The Dock: ${DOCK_RATE}/hr - No deposit required</p>
+          <p style={{color:"rgba(255,255,255,.3)",fontSize:12,marginBottom:32}}>At The Dock: ${DOCK_RATE}/hr - $50 non-refundable deposit</p>
           <div style={{display:"flex",gap:14,justifyContent:"center",flexWrap:"wrap"}}>
             <button className="btn-g" onClick={()=>startBook()} style={{background:"#c9a84c",color:"#0a0f1e",border:"none",padding:"15px 44px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600,letterSpacing:2,textTransform:"uppercase",transition:"all .22s"}}>Book A Charter</button>
             <button className="btn-o" onClick={()=>setPage("dock")} style={{background:"transparent",color:"#4aff9a",border:"1px solid rgba(74,255,154,.35)",padding:"15px 44px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:400,letterSpacing:1,transition:"all .22s"}}>At The Dock</button>
@@ -493,7 +493,7 @@ function LDGChartersApp() {
           <div>
             <div style={{fontSize:10,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:14}}>Policies</div>
             <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:28,fontWeight:500,marginBottom:20}}>Good To Know</h3>
-            {["$500 non-refundable deposit secures charter bookings.","Remaining balance due 48 hours before departure.","Charter times are STRICT — arrive 15-20 min early.","Weather cancellations receive a reschedule or credit.","At The Dock reservations: no deposit required."].map(p=>(
+            {["$500 non-refundable deposit secures charter bookings.","Remaining balance due 48 hours before departure.","Charter times are STRICT — arrive 15-20 min early.","Weather cancellations receive a reschedule or credit.","At The Dock reservations: $50 non-refundable deposit required."].map(p=>(
               <div key={p} style={{display:"flex",gap:10,fontSize:13,color:"rgba(255,255,255,.55)",lineHeight:1.65,marginBottom:10}}><span style={{color:"#c9a84c",flexShrink:0}}>—</span>{p}</div>
             ))}
           </div>
