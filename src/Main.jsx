@@ -51,7 +51,7 @@ function BlogPage({ setPage, post, setPost }) {
         <div style={{position:"relative",maxWidth:800,margin:"0 auto",textAlign:"center"}}>
           <div style={{fontSize:11,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:12}}>Chicago Boating Guide</div>
           <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(36px,6vw,58px)",fontWeight:300,color:"#fff",marginBottom:16}}>Everything You Need to Know About <span style={{color:"#c9a84c",fontStyle:"italic"}}>Chicago Boat Rentals</span></h1>
-          <p style={{fontSize:15,color:"rgba(255,255,255,.55)",lineHeight:1.75}}>Expert guides from the team at LDG Charters — Chicago's premier boat charter service at 31st Street Harbor.</p>
+          <p style={{fontSize:15,color:"rgba(255,255,255,.55)",lineHeight:1.75}}>Expert guides from the team at LDG Charters - Chicago's premier boat charter service at 31st Street Harbor.</p>
         </div>
       </div>
 
@@ -83,7 +83,7 @@ function GalleryPage({ setPage, startBook }) {
     {url:P.deck,    caption:"On Deck at 31st Street Harbor",        tag:"Boats"},
     {url:P.dusk,    caption:"Chicago at Dusk from the Marina",      tag:"Evening"},
     {url:P.night,   caption:"Chicago Night Skyline from the Dock",  tag:"Night"},
-    {url:P.playpen, caption:"The Playpen — Chicago's Lake Party",   tag:"Playpen"},
+    {url:P.playpen, caption:"The Playpen - Chicago's Lake Party",   tag:"Playpen"},
     {url:P.skyline, caption:"Bow View Approaching the Skyline",     tag:"Skyline"},
     {url:P.crowd,   caption:"The Playpen in Full Swing",            tag:"Playpen"},
   ];
@@ -107,7 +107,7 @@ function GalleryPage({ setPage, startBook }) {
 
       {/* Intro */}
       <div style={{maxWidth:800,margin:"0 auto",padding:"60px 5% 20px",textAlign:"center"}}>
-        <p style={{fontSize:16,color:"rgba(255,255,255,.6)",lineHeight:1.85}}>These are real photos from real charters on Lake Michigan. This is what your experience looks like — the skyline, the water, the people, and the energy. No stock photos. No filters. Just Chicago.</p>
+        <p style={{fontSize:16,color:"rgba(255,255,255,.6)",lineHeight:1.85}}>These are real photos from real charters on Lake Michigan. This is what your experience looks like - the skyline, the water, the people, and the energy. No stock photos. No filters. Just Chicago.</p>
       </div>
 
       {/* Gallery grid */}
@@ -171,6 +171,7 @@ function LDGChartersApp() {
   const [saved,setSaved]=useState(false);
   const [saveErr,setSaveErr]=useState("");
   const [coupon,setCoupon]=useState("");
+  const [zelleAck,setZelleAck]=useState(false);
   const [couponApplied,setCouponApplied]=useState(null);
   const [couponErr,setCouponErr]=useState("");
   const [bookedSlots,setBookedSlots]=useState([]);
@@ -238,7 +239,7 @@ function LDGChartersApp() {
   const discountedBalance = Math.max(0, discountedTotal - discountedDeposit);
 
   const sendEmails=async(chosenPayOpt)=>{
-    const params={customer_name:info.name,customer_email:info.email,customer_phone:info.phone,vessel:boat.name,charter_date:fmtDate(date),start_time:time,end_time:endT,duration:`${dur.label} (${dur.hours} hrs)`,destination:dest.name,total_price:`$${total.toLocaleString()}.00`,balance:`$${balance.toLocaleString()}.00`,payment_option:chosenPayOpt==="full"?"Full Payment":"Deposit Only ($500)",captain_name:"Arranged Separately — Call 708-846-3132"};
+    const params={customer_name:info.name,customer_email:info.email,customer_phone:info.phone,vessel:boat.name,charter_date:fmtDate(date),start_time:time,end_time:endT,duration:`${dur.label} (${dur.hours} hrs)`,destination:dest.name,total_price:`$${total.toLocaleString()}.00`,balance:`$${balance.toLocaleString()}.00`,payment_option:chosenPayOpt==="full"?"Full Payment":"Deposit Only ($500)",captain_name:"Arranged Separately - Call 708-846-3132"};
     try{
       await fetch("https://api.emailjs.com/api/v1.0/email/send",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({service_id:EMAILJS_SERVICE_ID,template_id:TEMPLATE_CUSTOMER,user_id:EMAILJS_PUBLIC_KEY,template_params:params})});
       await fetch("https://api.emailjs.com/api/v1.0/email/send",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({service_id:EMAILJS_SERVICE_ID,template_id:TEMPLATE_ADMIN,user_id:EMAILJS_PUBLIC_KEY,template_params:params})});
@@ -248,7 +249,7 @@ function LDGChartersApp() {
   const saveBooking=async(chosenPayOpt)=>{
     setSaving(true);setSaveErr("");
     try{
-      const bookingData={clientName:info.name,clientEmail:info.email,clientPhone:info.phone,hostName:host.name||null,hostEmail:host.email||null,vessel:boat.name,vesselId:boat.id,duration:`${dur.label} (${dur.hours} hrs)`,hours:dur.hours,destination:dest.name,charterDate:date,startTime:time,endTime:endT,boatFee:total,totalPrice:total,deposit:DEPOSIT,balance,paymentOption:chosenPayOpt,paymentStatus:"unpaid",bookingStatus:"pending",clientSignature:cSig,adminNotes:"",createdAt:serverTimestamp()};
+      const bookingData={clientName:info.name,clientEmail:info.email,clientPhone:info.phone,hostName:host.name||null,hostEmail:host.email||null,vessel:boat.name,vesselId:boat.id,duration:`${dur.label} (${dur.hours} hrs)`,hours:dur.hours,destination:dest.name,charterDate:date,startTime:time,endTime:endT,boatFee:total,totalPrice:total,deposit:DEPOSIT,balance,paymentOption:chosenPayOpt,paymentStatus:"zelle_pending",bookingStatus:"pending",clientSignature:cSig,adminNotes:"",createdAt:serverTimestamp()};
       const docRef = await addDoc(collection(db,"bookings"),bookingData);
       await sendEmails(chosenPayOpt);
       // Auto-generate PDF
@@ -276,7 +277,7 @@ function LDGChartersApp() {
         document.title = "LDG Charters | Chicago Boat Rental | Lake Michigan Charter | $300/hr";
         let m = document.querySelector('meta[name="description"]');
         if(!m){m=document.createElement('meta');m.name="description";document.head.appendChild(m);}
-        m.content = "Chicago boat rental starting at $300/hr. Premium Lake Michigan charters departing from 31st Street Harbor. Book online — Get Down Lo I & II available now.";
+        m.content = "Chicago boat rental starting at $300/hr. Premium Lake Michigan charters departing from 31st Street Harbor. Book online - Get Down Lo I & II available now.";
         return null;
       })()}
 
@@ -310,8 +311,8 @@ function LDGChartersApp() {
           <div style={{background:"#0c1928",padding:"60px 48px",display:"flex",flexDirection:"column",justifyContent:"center"}}>
             <div style={{fontSize:10,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:14}}>About LDG Charters</div>
             <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(28px,4vw,44px)",fontWeight:400,marginBottom:20,lineHeight:1.2}}>Where Adventure Meets Luxury <span style={{fontStyle:"italic"}}>On The Water</span></h2>
-            <p style={{fontSize:15,color:"rgba(255,255,255,.6)",lineHeight:1.8,marginBottom:16}}>Premium boat charters on Lake Michigan departing from 31st Street Harbor. Whether it's a birthday, corporate event, or a day out with friends — we deliver the ultimate Chicago experience.</p>
-            <p style={{fontSize:15,color:"rgba(255,255,255,.6)",lineHeight:1.8,marginBottom:28}}>We provide cups, ice, silverware, and paper towels. You bring the drinks, the people, and the energy. Captain services arranged separately — call 708-846-3132.</p>
+            <p style={{fontSize:15,color:"rgba(255,255,255,.6)",lineHeight:1.8,marginBottom:16}}>Premium boat charters on Lake Michigan departing from 31st Street Harbor. Whether it's a birthday, corporate event, or a day out with friends - we deliver the ultimate Chicago experience.</p>
+            <p style={{fontSize:15,color:"rgba(255,255,255,.6)",lineHeight:1.8,marginBottom:28}}>We provide cups, ice, silverware, and paper towels. You bring the drinks, the people, and the energy. Captain services arranged separately - call 708-846-3132.</p>
             <button onClick={()=>setPage("gallery")} style={{display:"inline-flex",alignItems:"center",gap:8,background:"transparent",border:"1px solid rgba(201,168,76,.4)",color:"#c9a84c",padding:"10px 20px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:500,letterSpacing:1,width:"fit-content"}}>View Gallery →</button>
           </div>
         </div>
@@ -320,7 +321,7 @@ function LDGChartersApp() {
       {/* FLEET */}
       <section id="fleet" style={{padding:"80px 5%",background:"rgba(255,255,255,.018)"}}>
         <div style={{maxWidth:1100,margin:"0 auto"}}>
-          <div style={{textAlign:"center",marginBottom:52}}><div style={{fontSize:10,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:10}}>Our Fleet</div><h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(34px,5vw,50px)",fontWeight:400}}>Choose Your <span style={{fontStyle:"italic"}}>Vessel</span></h2><p style={{marginTop:12,color:"rgba(255,255,255,.4)",fontSize:14}}>Two identical premium express cruisers — each accommodating up to 12 guests</p></div>
+          <div style={{textAlign:"center",marginBottom:52}}><div style={{fontSize:10,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:10}}>Our Fleet</div><h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(34px,5vw,50px)",fontWeight:400}}>Choose Your <span style={{fontStyle:"italic"}}>Vessel</span></h2><p style={{marginTop:12,color:"rgba(255,255,255,.4)",fontSize:14}}>Two identical premium express cruisers - each accommodating up to 12 guests</p></div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(min(480px,100%),1fr))",gap:24}}>
             {BOATS.map(b=>(
               <div key={b.id} className="boat-card" style={{background:"#0c1928",border:"1px solid rgba(201,168,76,.14)",borderRadius:16,overflow:"hidden",transition:"all .3s"}}>
@@ -378,13 +379,13 @@ function LDGChartersApp() {
           </div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:32,alignItems:"start"}}>
             <div style={{display:"flex",flexDirection:"column",gap:16,paddingTop:8}}>
-              <p style={{fontSize:15,color:"rgba(255,255,255,.6)",lineHeight:1.85}}>Bring the celebration dockside. No charter required — just show up, set the vibe, and enjoy the harbor atmosphere at 31st Street. Perfect for any occasion.</p>
+              <p style={{fontSize:15,color:"rgba(255,255,255,.6)",lineHeight:1.85}}>Bring the celebration dockside. No charter required - just show up, set the vibe, and enjoy the harbor atmosphere at 31st Street. Perfect for any occasion.</p>
               <p style={{fontSize:15,color:"rgba(255,255,255,.6)",lineHeight:1.85}}>We set the atmosphere. You bring the celebration.</p>
               <div style={{display:"flex",gap:14,alignItems:"center",marginTop:8,flexWrap:"wrap"}}>
                 <button className="btn-g" onClick={()=>setPage("dock")} style={{background:"#4aff9a",color:"#0a0f1e",border:"none",padding:"14px 32px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600,letterSpacing:2,textTransform:"uppercase",transition:"all .22s",boxShadow:"0 6px 24px rgba(74,255,154,.25)"}}>Reserve Your Spot</button>
                 <div style={{display:"flex",alignItems:"center",gap:8}}>
                   <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:32,fontWeight:600,color:"#4aff9a"}}>${DOCK_RATE}</div>
-                  <div style={{fontSize:12,color:"rgba(255,255,255,.4)",lineHeight:1.5}}>per hour · $50 non-refundable deposit</div>
+                  <div style={{fontSize:12,color:"rgba(255,255,255,.4)",lineHeight:1.5}}>per hour - $50 non-refundable deposit</div>
                 </div>
               </div>
             </div>
@@ -493,8 +494,8 @@ function LDGChartersApp() {
           <div>
             <div style={{fontSize:10,letterSpacing:4,color:"#c9a84c",textTransform:"uppercase",marginBottom:14}}>Policies</div>
             <h3 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:28,fontWeight:500,marginBottom:20}}>Good To Know</h3>
-            {["$500 non-refundable deposit secures charter bookings.","Remaining balance due 48 hours before departure.","Charter times are STRICT — arrive 15-20 min early.","Weather cancellations receive a reschedule or credit.","At The Dock reservations: $50 non-refundable deposit required."].map(p=>(
-              <div key={p} style={{display:"flex",gap:10,fontSize:13,color:"rgba(255,255,255,.55)",lineHeight:1.65,marginBottom:10}}><span style={{color:"#c9a84c",flexShrink:0}}>—</span>{p}</div>
+            {["$500 non-refundable deposit secures charter bookings.","Remaining balance due 48 hours before departure.","Charter times are STRICT - arrive 15-20 min early.","Weather cancellations receive a reschedule or credit.","At The Dock reservations: $50 non-refundable deposit required."].map(p=>(
+              <div key={p} style={{display:"flex",gap:10,fontSize:13,color:"rgba(255,255,255,.55)",lineHeight:1.65,marginBottom:10}}><span style={{color:"#c9a84c",flexShrink:0}}>-</span>{p}</div>
             ))}
           </div>
         </div>
@@ -520,7 +521,7 @@ function LDGChartersApp() {
     <div style={{fontFamily:"'DM Sans',sans-serif",background:"#0a0f1e",color:"#fff",minHeight:"100vh"}}>
       <nav style={{position:"sticky",top:0,zIndex:200,background:"rgba(10,15,30,.95)",backdropFilter:"blur(18px)",borderBottom:"1px solid rgba(201,168,76,.13)",padding:"0 5%",height:60,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
         <button onClick={reset} style={{background:"none",border:"none",color:"#c9a84c",cursor:"pointer",fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:600,letterSpacing:2}}>← LDG CHARTERS</button>
-        <div style={{fontSize:12,color:"rgba(255,255,255,.4)"}}>Step {step}/{SLABELS.length} — <span style={{color:"#c9a84c"}}>{SLABELS[step-1]}</span></div>
+        <div style={{fontSize:12,color:"rgba(255,255,255,.4)"}}>Step {step}/{SLABELS.length} - <span style={{color:"#c9a84c"}}>{SLABELS[step-1]}</span></div>
       </nav>
       <div style={{height:3,background:"rgba(255,255,255,.07)"}}><div style={{height:"100%",width:`${(step/SLABELS.length)*100}%`,background:"linear-gradient(90deg,#c9a84c,#e8d070)",transition:"width .4s ease"}}/></div>
       <div style={{padding:"14px 5% 0",display:"flex",gap:3,overflowX:"auto",justifyContent:"center",flexWrap:"wrap"}}>
@@ -560,7 +561,7 @@ function LDGChartersApp() {
 
         {step===2&&<div className="fu">
           <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(30px,6vw,44px)",fontWeight:400,marginBottom:6}}>Select <span style={{fontStyle:"italic",color:"#c9a84c"}}>Duration</span></h2>
-          <p style={{color:"rgba(255,255,255,.4)",marginBottom:28,fontSize:14}}>${BOAT_RATE} per hour — your price builds as you choose.</p>
+          <p style={{color:"rgba(255,255,255,.4)",marginBottom:28,fontSize:14}}>${BOAT_RATE} per hour - your price builds as you choose.</p>
           <div style={{display:"grid",gridTemplateColumns:"1fr",gap:24}}>
             <div style={{display:"flex",flexDirection:"column",gap:10}}>
               {DURATIONS.map(d=>(
@@ -572,10 +573,10 @@ function LDGChartersApp() {
             </div>
             <div style={{background:"rgba(201,168,76,.06)",border:"1px solid rgba(201,168,76,.28)",borderRadius:14,padding:24}}>
               <div style={{fontSize:10,letterSpacing:3,color:"#c9a84c",textTransform:"uppercase",marginBottom:14}}>Live Price Summary</div>
-              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:44,fontWeight:600,color:"#c9a84c",lineHeight:1,marginBottom:4}}>{dur?`$${(dur.hours*BOAT_RATE).toLocaleString()}`:"$—"}</div>
+              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:44,fontWeight:600,color:"#c9a84c",lineHeight:1,marginBottom:4}}>{dur?`$${(dur.hours*BOAT_RATE).toLocaleString()}`:"$-"}</div>
               <div style={{fontSize:12,color:"rgba(255,255,255,.38)",marginBottom:16}}>{dur?`${dur.hours} hrs × $${BOAT_RATE}/hr`:"Select a duration above"}</div>
               <div style={{display:"flex",flexDirection:"column",gap:7,paddingTop:14,borderTop:"1px solid rgba(255,255,255,.08)"}}>
-                {[["Vessel",boat?.name||"—"],["Rate",`$${BOAT_RATE}/hr`],["Hours",dur?`${dur.hours} hrs`:"—"],["Charter Fee",dur?`$${(dur.hours*BOAT_RATE).toLocaleString()}`:"—"],["Deposit Now","$500"],["Balance Due",dur?`$${(dur.hours*BOAT_RATE-DEPOSIT).toLocaleString()}`:"—"]].map(([k,v])=>(
+                {[["Vessel",boat?.name||"-"],["Rate",`$${BOAT_RATE}/hr`],["Hours",dur?`${dur.hours} hrs`:"-"],["Charter Fee",dur?`$${(dur.hours*BOAT_RATE).toLocaleString()}`:"-"],["Deposit Now","$500"],["Balance Due",dur?`$${(dur.hours*BOAT_RATE-DEPOSIT).toLocaleString()}`:"-"]].map(([k,v])=>(
                   <div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:13}}><span style={{color:"rgba(255,255,255,.42)"}}>{k}</span><span style={{color:k==="Charter Fee"||k==="Deposit Now"?"#c9a84c":"#fff",fontWeight:k==="Charter Fee"||k==="Deposit Now"?600:400}}>{v}</span></div>
                 ))}
               </div>
@@ -650,7 +651,7 @@ function LDGChartersApp() {
               ))}
               <div style={{marginTop:18,background:"rgba(201,168,76,.06)",border:"1px solid rgba(201,168,76,.2)",borderRadius:10,padding:18}}>
                 <div style={{fontSize:10,color:"#c9a84c",letterSpacing:2,textTransform:"uppercase",marginBottom:12}}>Booking Summary</div>
-                {[["Vessel",boat?.name],["Duration",`${dur?.label} (${dur?.hours} hrs)`],["Destination",dest?.name],["Date",fmtDate(date)],["Time",`${time} – ${endT}`],["Charter Fee",`$${total.toLocaleString()}`],["Deposit","$500"],["Balance Due",`$${balance.toLocaleString()}`]].map(([k,v])=>(
+                {[["Vessel",boat?.name],["Duration",`${dur?.label} (${dur?.hours} hrs)`],["Destination",dest?.name],["Date",fmtDate(date)],["Time",`${time} - ${endT}`],["Charter Fee",`$${total.toLocaleString()}`],["Deposit","$500"],["Balance Due",`$${balance.toLocaleString()}`]].map(([k,v])=>(
                   <div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:6}}><span style={{color:"rgba(255,255,255,.4)"}}>{k}</span><span style={{color:k==="Charter Fee"||k==="Deposit"?"#c9a84c":"#fff",fontWeight:k==="Charter Fee"?600:400}}>{v}</span></div>
                 ))}
               </div>
@@ -670,12 +671,12 @@ function LDGChartersApp() {
               <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"#999",marginBottom:9,paddingBottom:4,borderBottom:"1px solid #ebebeb"}}>Client Information</div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:6}}>
                 {[["Client Name",info.name],["Email",info.email],["Phone",info.phone],["Charter Date",fmtDate(date)]].map(([k,v])=>(
-                  <div key={k} style={{background:"#f7f7f7",padding:"7px 10px",borderRadius:4}}><div style={{fontSize:9,color:"#999",fontWeight:600,textTransform:"uppercase",letterSpacing:1,marginBottom:2}}>{k}</div><div style={{fontSize:12,fontWeight:500}}>{v||"—"}</div></div>
+                  <div key={k} style={{background:"#f7f7f7",padding:"7px 10px",borderRadius:4}}><div style={{fontSize:9,color:"#999",fontWeight:600,textTransform:"uppercase",letterSpacing:1,marginBottom:2}}>{k}</div><div style={{fontSize:12,fontWeight:500}}>{v||"-"}</div></div>
                 ))}
               </div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6}}>
-                {[["Vessel",boat?.name],["Window",`${time||"—"} – ${endT}`],["Departure","31st Street Harbor"]].map(([k,v])=>(
-                  <div key={k} style={{background:"#f7f7f7",padding:"7px 10px",borderRadius:4}}><div style={{fontSize:9,color:"#999",fontWeight:600,textTransform:"uppercase",letterSpacing:1,marginBottom:2}}>{k}</div><div style={{fontSize:12,fontWeight:500}}>{v||"—"}</div></div>
+                {[["Vessel",boat?.name],["Window",`${time||"-"} - ${endT}`],["Departure","31st Street Harbor"]].map(([k,v])=>(
+                  <div key={k} style={{background:"#f7f7f7",padding:"7px 10px",borderRadius:4}}><div style={{fontSize:9,color:"#999",fontWeight:600,textTransform:"uppercase",letterSpacing:1,marginBottom:2}}>{k}</div><div style={{fontSize:12,fontWeight:500}}>{v||"-"}</div></div>
                 ))}
               </div>
             </section>
@@ -701,13 +702,13 @@ function LDGChartersApp() {
             <section>
               <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"#999",marginBottom:12,paddingBottom:4,borderBottom:"1px solid #ebebeb"}}>Signatures</div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:18,marginBottom:10}}>
-                <div><div style={{fontSize:12,fontWeight:600,marginBottom:5}}>Client: {info.name||"—"}</div><SigCanvas label="Client Signature" onSigned={setCSig}/><div style={{fontSize:10,color:"#888",marginTop:4}}>Date: {fmtDate(date)||new Date().toLocaleDateString()}</div></div>
+                <div><div style={{fontSize:12,fontWeight:600,marginBottom:5}}>Client: {info.name||"-"}</div><SigCanvas label="Client Signature" onSigned={setCSig}/><div style={{fontSize:10,color:"#888",marginTop:4}}>Date: {fmtDate(date)||new Date().toLocaleDateString()}</div></div>
                 <div><div style={{fontSize:12,fontWeight:600,marginBottom:5}}>LDG Charters Representative</div><div style={{border:"1.5px solid #c9a84c",borderRadius:6,background:"#fff",padding:"8px 12px",height:88,display:"flex",flexDirection:"column",justifyContent:"flex-end"}}><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontStyle:"italic",color:"#222"}}>Lorenzo McKinnie</div></div><div style={{fontSize:10,color:"#888",marginTop:4}}>Lorenzo McKinnie - LDG Charters</div></div>
               </div>
             </section>
           </div>
           {!cSig&&<div style={{textAlign:"center",color:"rgba(255,200,50,.8)",fontSize:13}}>Please sign above to continue</div>}
-          {cSig&&<div style={{textAlign:"center"}}><span style={{display:"inline-flex",alignItems:"center",gap:7,background:"rgba(58,170,102,.12)",border:"1px solid rgba(58,170,102,.35)",borderRadius:8,padding:"10px 20px",color:"#3aaa66",fontSize:13}}>✓ Agreement signed — proceed to invoice</span></div>}
+          {cSig&&<div style={{textAlign:"center"}}><span style={{display:"inline-flex",alignItems:"center",gap:7,background:"rgba(58,170,102,.12)",border:"1px solid rgba(58,170,102,.35)",borderRadius:8,padding:"10px 20px",color:"#3aaa66",fontSize:13}}>✓ Agreement signed - proceed to invoice</span></div>}
         </div>}
 
         {step===7&&<div className="fu">
@@ -722,7 +723,7 @@ function LDGChartersApp() {
             <table style={{width:"100%",borderCollapse:"collapse",marginBottom:14}}>
               <thead><tr style={{background:"#0a0f1e"}}>{["Description","Qty","Rate","Amount"].map((h,i)=><th key={h} style={{padding:"7px 10px",textAlign:i===0?"left":i===3?"right":"center",color:"#fff",fontSize:10,fontWeight:600,letterSpacing:1,textTransform:"uppercase"}}>{h}</th>)}</tr></thead>
               <tbody>
-                <tr style={{borderBottom:"1px solid #f0f0f0"}}><td style={{padding:10,fontSize:12}}><div style={{fontWeight:600}}>{boat?.name} Charter</div><div style={{fontSize:10,color:"#888",marginTop:2}}>{dest?.name} - {fmtDate(date)} - {time} – {endT}</div></td><td style={{padding:10,textAlign:"center",fontSize:12}}>{dur?.hours} hrs</td><td style={{padding:10,textAlign:"center",fontSize:12}}>${BOAT_RATE}</td><td style={{padding:10,textAlign:"right",fontSize:12,fontWeight:600}}>${total.toLocaleString()}</td></tr>
+                <tr style={{borderBottom:"1px solid #f0f0f0"}}><td style={{padding:10,fontSize:12}}><div style={{fontWeight:600}}>{boat?.name} Charter</div><div style={{fontSize:10,color:"#888",marginTop:2}}>{dest?.name} - {fmtDate(date)} - {time} - {endT}</div></td><td style={{padding:10,textAlign:"center",fontSize:12}}>{dur?.hours} hrs</td><td style={{padding:10,textAlign:"center",fontSize:12}}>${BOAT_RATE}</td><td style={{padding:10,textAlign:"right",fontSize:12,fontWeight:600}}>${total.toLocaleString()}</td></tr>
               </tbody>
             </table>
             <div style={{display:"flex",justifyContent:"flex-end",marginBottom:16}}>
@@ -760,12 +761,49 @@ function LDGChartersApp() {
                 <div onClick={()=>setPayOpt("full")} style={{border:payOpt==="full"?"2.5px solid #0a0f1e":"1px solid #ddd",borderRadius:8,padding:14,cursor:"pointer",background:payOpt==="full"?"#f0f0f5":"#fff",transition:"all .2s"}}><div style={{fontWeight:700,fontSize:13,color:"#0a0f1e",marginBottom:4}}>Pay in Full</div><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:700,color:"#0a0f1e"}}>${discountedTotal===0?"FREE":`$${discountedTotal.toLocaleString()}`}</div><div style={{fontSize:10,color:"#888",marginTop:3}}>{discountedTotal===0?"Test booking - $0 charge":"No remaining balance"}</div></div>
               </div></>
               }
-              {saveErr&&<div style={{background:"rgba(255,80,80,.1)",border:"1px solid rgba(255,80,80,.3)",borderRadius:6,padding:"10px 14px",fontSize:13,color:"#ff5050",marginBottom:12}}>{saveErr}</div>}
               {discountedTotal===0?(
-                <button onClick={()=>saveBooking("free")} disabled={saving} style={{width:"100%",background:"linear-gradient(135deg,#3aaa66,#2d8a52)",color:"#fff",border:"none",padding:14,borderRadius:8,cursor:saving?"default":"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:600,fontSize:14,letterSpacing:1.5,textTransform:"uppercase",boxShadow:"0 6px 20px rgba(58,170,102,.35)"}}>
-                  {saving?"Confirming...":"✓ Confirm Test Booking — No Charge"}
+                <button onClick={()=>saveBooking("free")} disabled={saving} style={{width:"100%",background:"linear-gradient(135deg,#3aaa66,#2d8a52)",color:"#fff",border:"none",padding:14,borderRadius:8,cursor:saving?"default":"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:700,fontSize:14,letterSpacing:1.5,textTransform:"uppercase",boxShadow:"0 6px 20px rgba(58,170,102,.35)"}}>
+                  {saving?"Confirming...":"✓ Confirm Test Booking - No Charge"}
                 </button>
-              ):(payOpt&&<button onClick={()=>saveBooking(payOpt)} disabled={saving} style={{width:"100%",background:"#0a0f1e",color:"#fff",border:"none",padding:14,borderRadius:8,cursor:saving?"default":"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:600,fontSize:14,letterSpacing:1.5,textTransform:"uppercase",opacity:saving?.7:1}}>{saving?"Confirming...":payOpt==="deposit"?`Confirm & Pay $${discountedDeposit} Deposit →`:`Confirm & Pay $${discountedTotal.toLocaleString()} in Full →`}</button>)}
+              ):payOpt&&(
+                <div>
+                  <div style={{background:"linear-gradient(135deg,#05140a,#0a2210)",border:"2px solid rgba(74,255,154,.3)",borderRadius:12,padding:"20px 18px",marginBottom:12}}>
+                    <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16,paddingBottom:14,borderBottom:"1px solid rgba(255,255,255,.08)"}}>
+                      <div style={{width:38,height:38,borderRadius:9,background:"linear-gradient(135deg,#6b1aff,#9b4dff)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><span style={{color:"#fff",fontWeight:800,fontSize:17}}>Z</span></div>
+                      <div><div style={{fontSize:14,fontWeight:700,color:"#fff"}}>Pay via Zelle</div><div style={{fontSize:11,color:"rgba(255,255,255,.45)"}}>Instant - No fees - Required to secure booking</div></div>
+                    </div>
+                    <div style={{display:"grid",gap:10,marginBottom:14}}>
+                      <div style={{background:"rgba(255,255,255,.05)",borderRadius:8,padding:"12px 14px"}}>
+                        <div style={{fontSize:9,color:"rgba(255,255,255,.38)",letterSpacing:2,textTransform:"uppercase",marginBottom:6}}>Send To</div>
+                        <div style={{fontSize:16,fontWeight:700,color:"#4aff9a"}}>(708) 846-3132</div>
+                        <div style={{fontSize:13,color:"rgba(255,255,255,.7)",marginTop:2}}>Lorenzo McKinnie</div>
+                        <div style={{fontSize:11,color:"rgba(255,255,255,.38)",marginTop:2}}>Appears as: <strong style={{color:"rgba(255,255,255,.6)"}}>lomacproperty</strong></div>
+                      </div>
+                      <div style={{background:"rgba(255,255,255,.05)",borderRadius:8,padding:"12px 14px"}}>
+                        <div style={{fontSize:9,color:"rgba(255,255,255,.38)",letterSpacing:2,textTransform:"uppercase",marginBottom:6}}>Amount Due Now</div>
+                        <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:34,fontWeight:700,color:"#4aff9a"}}>{payOpt==="deposit"?`$${discountedDeposit}`:`$${discountedTotal.toLocaleString()}`}</div>
+                        <div style={{fontSize:11,color:"rgba(255,255,255,.38)",marginTop:2}}>{payOpt==="deposit"?`Non-refundable deposit - $${discountedBalance.toLocaleString()} balance due 48hrs before charter`:"Full payment - No remaining balance"}</div>
+                      </div>
+                      <div style={{background:"rgba(0,0,0,.25)",borderRadius:8,padding:"10px 14px"}}>
+                        <div style={{fontSize:9,color:"rgba(255,255,255,.38)",letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Zelle Memo - Copy Exactly</div>
+                        <div style={{fontSize:13,fontWeight:700,color:"#fff",fontFamily:"monospace"}}>{`LDG ${info.name} ${fmtDate(date)}`}</div>
+                      </div>
+                    </div>
+                    <div style={{background:"rgba(255,80,60,.08)",border:"1px solid rgba(255,80,60,.3)",borderRadius:8,padding:"10px 14px",marginBottom:14}}>
+                      <div style={{fontSize:12,fontWeight:700,color:"#ff8070",marginBottom:3}}>Your spot is NOT confirmed until payment is received.</div>
+                      <div style={{fontSize:11,color:"rgba(255,160,140,.8)",lineHeight:1.65}}>Another customer can book your time slot at any moment. Send your Zelle payment immediately after submitting. Prompt payment is the only way to secure your spot.</div>
+                    </div>
+                    <label style={{display:"flex",alignItems:"flex-start",gap:10,cursor:"pointer"}}>
+                      <input type="checkbox" checked={zelleAck} onChange={e=>setZelleAck(e.target.checked)} style={{marginTop:3,width:16,height:16,flexShrink:0,accentColor:"#4aff9a"}}/>
+                      <span style={{fontSize:12,color:"rgba(255,255,255,.7)",lineHeight:1.65}}>I understand my booking is not confirmed until Zelle payment of <strong style={{color:"#4aff9a"}}>{payOpt==="deposit"?`$${discountedDeposit}`:`$${discountedTotal.toLocaleString()}`}</strong> is received. I will send payment immediately to (708) 846-3132.</span>
+                    </label>
+                  </div>
+                  {saveErr&&<div style={{background:"rgba(255,80,80,.1)",border:"1px solid rgba(255,80,80,.3)",borderRadius:6,padding:"10px 14px",fontSize:13,color:"#ff5050",marginBottom:10}}>{saveErr}</div>}
+                  {zelleAck?<button onClick={()=>saveBooking(payOpt)} disabled={saving} style={{width:"100%",background:"#4aff9a",color:"#0a0f1e",border:"none",padding:14,borderRadius:8,cursor:saving?"default":"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:700,fontSize:14,letterSpacing:1,textTransform:"uppercase",boxShadow:"0 6px 20px rgba(74,255,154,.3)"}}>
+                    {saving?"Submitting...":payOpt==="deposit"?`Submit Booking - Zelling $${discountedDeposit} Now`:`Submit Booking - Zelling $${discountedTotal.toLocaleString()} Now`}
+                  </button>:<div style={{textAlign:"center",fontSize:12,color:"rgba(255,255,255,.3)",padding:"10px 0"}}>Check the box above to submit your booking</div>}
+                </div>
+              )}
             </>}
             {saved&&<div style={{background:"#f0fff5",border:"2px solid #3aaa66",borderRadius:10,padding:20,textAlign:"center"}}>
               <div style={{fontSize:26,marginBottom:6}}>🎉</div>
@@ -773,7 +811,7 @@ function LDGChartersApp() {
               <div style={{fontSize:13,color:"#2a5a34",lineHeight:1.65,marginBottom:12}}>Thank you <strong>{info.name}</strong>! Your charter of <strong>{boat?.name}</strong> on <strong>{fmtDate(date)}</strong> is confirmed.<br/>Your signed agreement PDF has been downloaded. Call <strong>708-846-3132</strong> with questions.</div>
               <button onClick={()=>generatePDF({clientName:info.name,clientEmail:info.email,clientPhone:info.phone,vessel:boat?.name,charterDate:date,startTime:time,endTime:endT,duration:`${dur?.label}`,destination:dest?.name,boatFee:total,totalPrice:total,deposit:DEPOSIT,balance,paymentOption:payOpt,clientSignature:cSig})} style={{background:"rgba(58,170,102,.15)",border:"1px solid rgba(58,170,102,.4)",color:"#3aaa66",padding:"8px 20px",borderRadius:6,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12,fontWeight:600}}>📄 Re-download Agreement PDF</button>
             </div>}
-            <div style={{marginTop:12,padding:10,background:"#f8f8f8",borderRadius:6,fontSize:10,color:"#999",lineHeight:1.6}}>Deposit non-refundable. Balance due 48 hrs prior. Charter times strict — arrive early. 708-846-3132</div>
+            <div style={{marginTop:12,padding:10,background:"#f8f8f8",borderRadius:6,fontSize:10,color:"#999",lineHeight:1.6}}>Deposit non-refundable. Balance due 48 hrs prior. Charter times strict - arrive early. 708-846-3132</div>
           </div>
           <div style={{textAlign:"center",marginTop:14}}><button onClick={reset} style={{background:"transparent",border:"1px solid rgba(255,255,255,.2)",color:"rgba(255,255,255,.45)",padding:"9px 22px",borderRadius:6,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:12}}>Return to Home</button></div>
         </div>}
@@ -781,7 +819,7 @@ function LDGChartersApp() {
         {step<7&&<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:40,paddingTop:20,borderTop:"1px solid rgba(255,255,255,.07)"}}>
           <button onClick={()=>step>1?setStep(step-1):reset()} style={{background:"transparent",border:"1px solid rgba(255,255,255,.18)",color:"rgba(255,255,255,.55)",padding:"11px 26px",borderRadius:6,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13}}>{step===1?"Back to Home":"Previous"}</button>
           {!canNext()&&<div style={{fontSize:12,color:"rgba(255,255,255,.28)",textAlign:"center",flex:1,padding:"0 14px"}}>
-            {step===4&&date&&!time?"Select an available time slot":step===4&&time&&isTimeBlocked(time,dur?.hours||2,bookedSlots)?"That time is unavailable — please select another":"Select an option to continue"}
+            {step===4&&date&&!time?"Select an available time slot":step===4&&time&&isTimeBlocked(time,dur?.hours||2,bookedSlots)?"That time is unavailable - please select another":"Select an option to continue"}
           </div>}
           <button disabled={!canNext()} onClick={()=>setStep(step+1)} style={{background:canNext()?"#c9a84c":"rgba(255,255,255,.08)",color:canNext()?"#0a0f1e":"rgba(255,255,255,.18)",border:"none",padding:"11px 32px",borderRadius:6,cursor:canNext()?"pointer":"default",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600,letterSpacing:1.5,textTransform:"uppercase",transition:"all .2s"}}>
             {step===6?"Proceed to Invoice →":"Continue →"}

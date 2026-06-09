@@ -11,6 +11,7 @@ export function AtTheDockPage({ onBack }) {
   const [info, setInfo] = useState({ name: "", email: "", phone: "" });
   const [cSig, setCSig] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [zelleAck, setZelleAck] = useState(false);
   const [saved, setSaved] = useState(false);
   const [err, setErr] = useState("");
   const [bookedSlots, setBookedSlots] = useState([]);
@@ -72,14 +73,14 @@ export function AtTheDockPage({ onBack }) {
       <div style={{ fontFamily: "'DM Sans',sans-serif", background: "#0a0f1e", color: "#fff", minHeight: "100vh" }}>
         <nav style={{ position: "sticky", top: 0, zIndex: 200, background: "rgba(10,15,30,.95)", backdropFilter: "blur(18px)", borderBottom: "1px solid rgba(74,255,154,.15)", padding: "0 5%", height: 60, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <button onClick={onBack} style={{ background: "none", border: "none", color: "#4aff9a", cursor: "pointer", fontFamily: "'Cormorant Garamond',serif", fontSize: 18, fontWeight: 600, letterSpacing: 2 }}>← LDG CHARTERS</button>
-          <div style={{ fontSize: 12, color: "rgba(255,255,255,.4)" }}>At The Dock · Step {step}/{STEPS.length} — <span style={{ color: "#4aff9a" }}>{STEPS[step - 1]}</span></div>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,.4)" }}>At The Dock - Step {step}/{STEPS.length} - <span style={{ color: "#4aff9a" }}>{STEPS[step - 1]}</span></div>
         </nav>
         <div style={{ height: 3, background: "rgba(255,255,255,.07)" }}>
           <div style={{ height: "100%", width: `${(step / STEPS.length) * 100}%`, background: "linear-gradient(90deg,#4aff9a,#c9a84c)", transition: "width .4s ease" }} />
         </div>
         <div style={{ padding: "28px 5% 16px", background: "linear-gradient(135deg,#050f20,#0a1a30)", borderBottom: "1px solid rgba(74,255,154,.1)" }}>
           <div style={{ fontSize: 10, letterSpacing: 4, color: "#4aff9a", textTransform: "uppercase", marginBottom: 6 }}>Dockside Experience</div>
-          <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(22px,4vw,36px)", fontWeight: 300, color: "#fff" }}>At The <span style={{ color: "#4aff9a", fontStyle: "italic" }}>Dock</span> — ${DOCK_RATE}/hr</h2>
+          <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(22px,4vw,36px)", fontWeight: 300, color: "#fff" }}>At The <span style={{ color: "#4aff9a", fontStyle: "italic" }}>Dock</span> - ${DOCK_RATE}/hr</h2>
         </div>
         <div style={{ maxWidth: 860, margin: "0 auto", padding: "32px 5% 100px" }}>
 
@@ -102,7 +103,7 @@ export function AtTheDockPage({ onBack }) {
           {step === 2 && (
             <div className="fu">
               <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "clamp(26px,5vw,40px)", fontWeight: 400, marginBottom: 6 }}>How Long Is <span style={{ fontStyle: "italic", color: "#4aff9a" }}>Your Event?</span></h2>
-              <p style={{ color: "rgba(255,255,255,.4)", marginBottom: 20, fontSize: 14 }}>${DOCK_RATE}/hr · ${DOCK_DEPOSIT} deposit · Dockside at 31st Street Harbor.</p>
+              <p style={{ color: "rgba(255,255,255,.4)", marginBottom: 20, fontSize: 14 }}>${DOCK_RATE}/hr - ${DOCK_DEPOSIT} deposit - Dockside at 31st Street Harbor.</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 500, marginBottom: 20 }}>
                 {DOCK_DURATIONS.map(d => (
                   <div key={d.id} onClick={() => setDur(d)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 18px", border: dur?.id === d.id ? "1.5px solid #4aff9a" : "1px solid rgba(255,255,255,.1)", borderRadius: 10, cursor: "pointer", background: dur?.id === d.id ? "rgba(74,255,154,.07)" : "rgba(255,255,255,.02)", transition: "all .2s" }}>
@@ -117,7 +118,7 @@ export function AtTheDockPage({ onBack }) {
               {dur && (
                 <div style={{ background: "rgba(74,255,154,.05)", border: "1px solid rgba(74,255,154,.25)", borderRadius: 12, padding: "16px 20px", maxWidth: 500 }}>
                   <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 36, fontWeight: 600, color: "#4aff9a" }}>${total}</div>
-                  <div style={{ fontSize: 12, color: "rgba(255,255,255,.38)", marginTop: 4 }}>{dur.hours} hr{dur.hours > 1 ? "s" : ""} x ${DOCK_RATE}/hr · ${DOCK_DEPOSIT} deposit due</div>
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,.38)", marginTop: 4 }}>{dur.hours} hr{dur.hours > 1 ? "s" : ""} x ${DOCK_RATE}/hr - ${DOCK_DEPOSIT} deposit due</div>
                 </div>
               )}
             </div>
@@ -173,13 +174,13 @@ export function AtTheDockPage({ onBack }) {
               <div style={{ background: "#fff", borderRadius: 12, padding: "22px 18px", color: "#1a1a1a", maxWidth: 620, boxShadow: "0 24px 80px rgba(0,0,0,.55)" }}>
                 <div style={{ textAlign: "center", marginBottom: 14, paddingBottom: 12, borderBottom: "2px solid #0a0f1e" }}>
                   <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 19, fontWeight: 700, letterSpacing: 3, color: "#0a0f1e" }}>LDG CHARTERS</div>
-                  <div style={{ fontSize: 10, letterSpacing: 3, color: "#888", textTransform: "uppercase", marginTop: 3 }}>At The Dock — Reservation Agreement</div>
+                  <div style={{ fontSize: 10, letterSpacing: 3, color: "#888", textTransform: "uppercase", marginTop: 3 }}>At The Dock - Reservation Agreement</div>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5, marginBottom: 12 }}>
                   {[["Guest", info.name], ["Email", info.email], ["Phone", info.phone], ["Celebration", celeb?.name], ["Date", fmtDate(date)], ["Duration", dur?.label]].map(([k, v]) => (
                     <div key={k} style={{ background: "#f7f7f7", padding: "6px 9px", borderRadius: 4 }}>
                       <div style={{ fontSize: 9, color: "#999", fontWeight: 600, textTransform: "uppercase", letterSpacing: 1, marginBottom: 2 }}>{k}</div>
-                      <div style={{ fontSize: 12, fontWeight: 500 }}>{v || "—"}</div>
+                      <div style={{ fontSize: 12, fontWeight: 500 }}>{v || "-"}</div>
                     </div>
                   ))}
                 </div>
@@ -200,7 +201,7 @@ export function AtTheDockPage({ onBack }) {
                   ))}
                 </div>
                 <div style={{ marginBottom: 10 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 5, color: "#0a0f1e" }}>Client Signature — {info.name || "—"}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 5, color: "#0a0f1e" }}>Client Signature - {info.name || "-"}</div>
                   <SigCanvas label="Sign to confirm your reservation" onSigned={setCSig} />
                 </div>
                 <div>
@@ -211,7 +212,7 @@ export function AtTheDockPage({ onBack }) {
                 </div>
               </div>
               {!cSig && <div style={{ textAlign: "center", marginTop: 10, color: "rgba(255,200,50,.8)", fontSize: 13 }}>Please sign above to continue</div>}
-              {cSig && <div style={{ textAlign: "center", marginTop: 10 }}><span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(58,170,102,.12)", border: "1px solid rgba(58,170,102,.35)", borderRadius: 8, padding: "9px 18px", color: "#3aaa66", fontSize: 13 }}>Agreement signed — proceed to confirm</span></div>}
+              {cSig && <div style={{ textAlign: "center", marginTop: 10 }}><span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(58,170,102,.12)", border: "1px solid rgba(58,170,102,.35)", borderRadius: 8, padding: "9px 18px", color: "#3aaa66", fontSize: 13 }}>Agreement signed - proceed to confirm</span></div>}
             </div>
           )}
 
@@ -234,9 +235,34 @@ export function AtTheDockPage({ onBack }) {
                 </div>
                 {err && <div style={{ color: "#ff5050", fontSize: 13, marginTop: 8, padding: "7px 10px", background: "rgba(255,80,80,.08)", borderRadius: 6 }}>{err}</div>}
                 {!saved && (
-                  <button onClick={save} disabled={saving} style={{ width: "100%", background: "#0a0f1e", color: "#fff", border: "none", padding: 13, borderRadius: 8, cursor: "pointer", fontFamily: "'DM Sans',sans-serif", fontWeight: 600, fontSize: 14, letterSpacing: 1.5, textTransform: "uppercase", marginTop: 14 }}>
-                    {saving ? "Confirming..." : `Confirm & Pay $${DOCK_DEPOSIT} Deposit`}
-                  </button>
+                  <div style={{marginTop:14}}>
+                    <div style={{background:"linear-gradient(135deg,#05140a,#0a2210)",border:"2px solid rgba(74,255,154,.3)",borderRadius:12,padding:"16px 14px",marginBottom:10}}>
+                      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12,paddingBottom:10,borderBottom:"1px solid rgba(255,255,255,.08)"}}>
+                        <div style={{width:34,height:34,borderRadius:8,background:"linear-gradient(135deg,#6b1aff,#9b4dff)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><span style={{color:"#fff",fontWeight:800,fontSize:15}}>Z</span></div>
+                        <div><div style={{fontSize:13,fontWeight:700,color:"#fff"}}>Pay via Zelle</div><div style={{fontSize:10,color:"rgba(255,255,255,.45)"}}>Required to secure your spot</div></div>
+                      </div>
+                      <div style={{background:"rgba(255,255,255,.05)",borderRadius:8,padding:"10px 12px",marginBottom:8}}>
+                        <div style={{fontSize:9,color:"rgba(255,255,255,.38)",letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Send To</div>
+                        <div style={{fontSize:15,fontWeight:700,color:"#4aff9a"}}>(708) 846-3132</div>
+                        <div style={{fontSize:12,color:"rgba(255,255,255,.6)",marginTop:1}}>Lorenzo McKinnie - <span style={{color:"rgba(255,255,255,.4)"}}>lomacproperty</span></div>
+                      </div>
+                      <div style={{background:"rgba(255,255,255,.05)",borderRadius:8,padding:"10px 12px",marginBottom:8}}>
+                        <div style={{fontSize:9,color:"rgba(255,255,255,.38)",letterSpacing:2,textTransform:"uppercase",marginBottom:4}}>Amount</div>
+                        <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:30,fontWeight:700,color:"#4aff9a"}}>${DOCK_DEPOSIT}</div>
+                        <div style={{fontSize:10,color:"rgba(255,255,255,.38)",marginTop:1}}>Non-refundable deposit</div>
+                      </div>
+                      <div style={{background:"rgba(255,80,60,.07)",border:"1px solid rgba(255,80,60,.25)",borderRadius:8,padding:"9px 12px",marginBottom:12,fontSize:11,color:"rgba(255,160,140,.8)",lineHeight:1.6}}>
+                        <strong style={{color:"#ff8070"}}>Your spot is NOT confirmed until payment is received.</strong> Send Zelle immediately after submitting to secure your reservation.
+                      </div>
+                      <label style={{display:"flex",alignItems:"flex-start",gap:9,cursor:"pointer"}}>
+                        <input type="checkbox" checked={zelleAck} onChange={e=>setZelleAck(e.target.checked)} style={{marginTop:2,width:15,height:15,flexShrink:0,accentColor:"#4aff9a"}}/>
+                        <span style={{fontSize:11,color:"rgba(255,255,255,.7)",lineHeight:1.6}}>I understand my spot is not confirmed until ${DOCK_DEPOSIT} Zelle payment is received at (708) 846-3132.</span>
+                      </label>
+                    </div>
+                    {zelleAck?<button onClick={save} disabled={saving} style={{width:"100%",background:"#4aff9a",color:"#0a0f1e",border:"none",padding:12,borderRadius:8,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:700,fontSize:13,letterSpacing:1,textTransform:"uppercase",boxShadow:"0 5px 16px rgba(74,255,154,.3)"}}>
+                      {saving?"Submitting...":"Submit Booking - Zelling $50 Now"}
+                    </button>:<div style={{textAlign:"center",fontSize:12,color:"rgba(255,255,255,.3)",padding:"8px 0"}}>Check the box above to submit</div>}
+                  </div>
                 )}
                 {saved && (
                   <div style={{ background: "#f0fff5", border: "2px solid #3aaa66", borderRadius: 10, padding: 16, textAlign: "center", marginTop: 12 }}>

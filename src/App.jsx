@@ -39,7 +39,7 @@ export const BOATS = [
   {
     id:"get-down-lo",
     name:"Get Down Lo",
-    subtitle:"Express Cruiser · Vessel 1",
+    subtitle:"Express Cruiser - Vessel 1",
     tagline:"Sleek. Stylish. Iconic.",
     description:"The flagship of the LDG fleet. A premium express cruiser built for unforgettable moments on Lake Michigan. Open-air luxury with room for up to 12 guests.",
     features:["Sun deck & swim platform","Premium sound system","Cups, ice & silverware included","Up to 12 guests"],
@@ -49,9 +49,9 @@ export const BOATS = [
   {
     id:"get-down-lo-ii",
     name:"Get Down Lo II",
-    subtitle:"Express Cruiser · Vessel 2",
+    subtitle:"Express Cruiser - Vessel 2",
     tagline:"Same luxury. Double the availability.",
-    description:"Identical twin to the original Get Down Lo. The same premium express cruiser experience — perfect for groups who want the full LDG treatment on Lake Michigan.",
+    description:"Identical twin to the original Get Down Lo. The same premium express cruiser experience - perfect for groups who want the full LDG treatment on Lake Michigan.",
     features:["Sun deck & swim platform","Premium sound system","Cups, ice & silverware included","Up to 12 guests"],
     bg:"linear-gradient(135deg,#1e0d40,#120828,#2a1050)", accent:"#a06eff",
     photo: P.boat2,
@@ -69,7 +69,7 @@ export const DURATIONS = [
 ];
 
 export const DESTINATIONS = [
-  {id:"skyline",   name:"Chicago Skyline Cruise", icon:"🏙️", desc:"Cruise along the iconic Chicago skyline — the most stunning view in the world.", photo:P.skyline},
+  {id:"skyline",   name:"Chicago Skyline Cruise", icon:"🏙️", desc:"Cruise along the iconic Chicago skyline - the most stunning view in the world.", photo:P.skyline},
   {id:"playpen",   name:"The Playpen",            icon:"⚓",  desc:"Anchor at Monroe Harbor's legendary cove where Chicago's boating scene comes alive.", photo:P.playpen},
   {id:"navy-pier", name:"Navy Pier",              icon:"🎡", desc:"Cruise past Chicago's iconic Navy Pier, Ferris wheel, and vibrant lakefront.", photo:P.deck},
   {id:"calumet",   name:"Calumet Harbor",         icon:"🌊", desc:"A scenic journey south along the shoreline to the peaceful Calumet Harbor.", photo:P.hero},
@@ -83,9 +83,9 @@ export const CELEBRATIONS = [
   {id:"birthday",   name:"Birthday",               icon:"🎂", desc:"Make their special day unforgettable on the water."},
   {id:"anniversary",name:"Anniversary",            icon:"💍", desc:"Celebrate your love story on Lake Michigan."},
   {id:"corporate",  name:"Corporate Event",        icon:"💼", desc:"Impress your team or clients with a lakeside experience."},
-  {id:"girls-night",name:"Girls Night Out",        icon:"🥂", desc:"The ultimate girls night — vibes, views, and the lake."},
+  {id:"girls-night",name:"Girls Night Out",        icon:"🥂", desc:"The ultimate girls night - vibes, views, and the lake."},
   {id:"bach",       name:"Bachelor / Bachelorette",icon:"🎉", desc:"Send them off in style before the big day."},
-  {id:"celebrating",name:"Just Celebrating",       icon:"✨", desc:"No occasion needed — life is worth celebrating."},
+  {id:"celebrating",name:"Just Celebrating",       icon:"✨", desc:"No occasion needed - life is worth celebrating."},
 ];
 
 export const DOCK_DURATIONS = [
@@ -97,7 +97,7 @@ export const DOCK_DURATIONS = [
 
 export const TERMS = [
   {n:1,  t:"PAYMENT AND BOOKING",          b:"Deposit required to secure vessel. Remaining balance due 48 hours before departure."},
-  {n:2,  t:"BOARDING AND DEPARTURE",       b:"Arrive 15-20 minutes early for check-in and safety briefing. Charter times are STRICT — late arrivals do not extend the charter window."},
+  {n:2,  t:"BOARDING AND DEPARTURE",       b:"Arrive 15-20 minutes early for check-in and safety briefing. Charter times are STRICT - late arrivals do not extend the charter window."},
   {n:3,  t:"PASSENGER LIMITS",             b:"Must comply with U.S. Coast Guard regulations. Maximum 12 guests per vessel."},
   {n:4,  t:"SAFETY RULES AND CONDUCT",     b:"Follow captain instructions at all times. Unsafe behavior may end charter with no refund. Swimming only with captain approval. Children under 13 must wear life jackets."},
   {n:5,  t:"WEATHER POLICY",               b:"Only the captain may cancel or delay. Unsafe conditions include lightning, high winds, fog, or hazardous waves. Weather cancellations receive a reschedule or credit."},
@@ -117,22 +117,22 @@ export const BLOG_POSTS = [
     date:"May 2025",
     readTime:"4 min read",
     excerpt:"Chicago boat rental prices vary widely depending on vessel size, duration, and season. Here's the complete 2025 pricing breakdown.",
-    content:`Chicago boat rental prices typically range from $300 to $600+ per hour depending on the vessel and operator. At LDG Charters, we keep it simple — $300 per hour for our premium express cruisers with a 2-hour minimum and a $500 deposit to secure your booking.
+    content:`Chicago boat rental prices typically range from $300 to $600+ per hour depending on the vessel and operator. At LDG Charters, we keep it simple - $300 per hour for our premium express cruisers with a 2-hour minimum and a $500 deposit to secure your booking.
 
 **What's included in your rental:**
 Most Chicago charter companies, including LDG Charters, provide cups, ice, plastic silverware, and paper towels. You bring your own drinks and food. Captain services are arranged separately and priced per trip.
 
 **Typical Chicago boat rental price ranges (2025):**
-- Small pontoon boats: $150–$250/hr
-- Express cruisers (10-12 guests): $300–$500/hr  
-- Luxury yachts (12+ guests): $500–$1,000+/hr
-- Party boats: $600–$1,200/hr flat rate
+- Small pontoon boats: $150-$250/hr
+- Express cruisers (10-12 guests): $300-$500/hr  
+- Luxury yachts (12+ guests): $500-$1,000+/hr
+- Party boats: $600-$1,200/hr flat rate
 
 **What drives the price up?**
-Peak season (June–August), weekends, and holidays command premium pricing. Sunset and nighttime charters often carry a premium due to demand. Adding catering, decorations, or specialty equipment also increases costs.
+Peak season (June-August), weekends, and holidays command premium pricing. Sunset and nighttime charters often carry a premium due to demand. Adding catering, decorations, or specialty equipment also increases costs.
 
 **Is it worth it?**
-Absolutely. A 3-hour charter for 10 guests works out to roughly $90 per person — less than a nice dinner out — with an experience that's completely unique to Chicago. There's nothing like seeing the skyline from the water.
+Absolutely. A 3-hour charter for 10 guests works out to roughly $90 per person - less than a nice dinner out - with an experience that's completely unique to Chicago. There's nothing like seeing the skyline from the water.
 
 **Book your charter at LDG Charters starting at $300/hr →**`,
   },
@@ -141,8 +141,8 @@ Absolutely. A 3-hour charter for 10 guests works out to roughly $90 per person �
     title:"Is Lake Michigan Safe for Boating?",
     date:"April 2025",
     readTime:"5 min read",
-    excerpt:"Lake Michigan is one of America's greatest boating destinations — but like any large body of water, safety awareness is essential. Here's what you need to know.",
-    content:`Lake Michigan is absolutely safe for boating when you take the right precautions. As the second-largest of the Great Lakes by surface area, it offers world-class boating conditions most of the season — but it demands respect.
+    excerpt:"Lake Michigan is one of America's greatest boating destinations - but like any large body of water, safety awareness is essential. Here's what you need to know.",
+    content:`Lake Michigan is absolutely safe for boating when you take the right precautions. As the second-largest of the Great Lakes by surface area, it offers world-class boating conditions most of the season - but it demands respect.
 
 **Why Lake Michigan is excellent for boating:**
 - Calm, protected conditions near the Chicago shoreline most summer days
@@ -151,13 +151,13 @@ Absolutely. A 3-hour charter for 10 guests works out to roughly $90 per person �
 - Well-maintained harbor infrastructure at 31st Street Harbor
 
 **When to be cautious:**
-Lake Michigan can generate waves of 6–8 feet or more during storms. Squalls can develop quickly, particularly in spring and fall. Our licensed captains monitor conditions constantly and will cancel or delay a charter if conditions aren't safe — your safety always comes first.
+Lake Michigan can generate waves of 6-8 feet or more during storms. Squalls can develop quickly, particularly in spring and fall. Our licensed captains monitor conditions constantly and will cancel or delay a charter if conditions aren't safe - your safety always comes first.
 
 **Safety standards at LDG Charters:**
 All charters depart from 31st Street Harbor with life jackets for all passengers. Children under 13 are required to wear life jackets at all times. Swimming is only permitted with captain approval in designated safe areas.
 
 **Best conditions for Lake Michigan boating:**
-June, July, and August offer the most consistent, calm conditions with water temperatures reaching 65–75°F. September and early October bring beautiful fall colors and fewer crowds, though weather can be more variable.`,
+June, July, and August offer the most consistent, calm conditions with water temperatures reaching 65-75°F. September and early October bring beautiful fall colors and fewer crowds, though weather can be more variable.`,
   },
   {
     slug:"what-is-the-playpen-chicago",
@@ -174,7 +174,7 @@ Boats anchor and tie up together in a massive floating party. Music plays from e
 The Playpen runs on summer weekends, typically from Memorial Day through Labor Day. The busiest and most epic days are Saturday afternoons from about noon to 6 PM. July 4th weekend is legendary.
 
 **How do you get to The Playpen:**
-The best way is to charter a boat — like LDG Charters departing from 31st Street Harbor. From the harbor, the run to The Playpen takes about 15-20 minutes. Alternatively, some companies offer water taxi service, but nothing beats arriving on your own private charter.
+The best way is to charter a boat - like LDG Charters departing from 31st Street Harbor. From the harbor, the run to The Playpen takes about 15-20 minutes. Alternatively, some companies offer water taxi service, but nothing beats arriving on your own private charter.
 
 **What to bring:**
 Music (a Bluetooth speaker), drinks, snacks, sunscreen, and good vibes. LDG Charters provides cups, ice, and silverware. You handle the drinks and food.
@@ -192,23 +192,23 @@ The Coast Guard and Chicago Police Marine Unit patrol The Playpen regularly. As 
     excerpt:"Chicago's boating season runs May through October, but the sweet spot depends on what kind of experience you're after. Here's our insider breakdown.",
     content:`Chicago's boating season officially runs from May through October, with peak season from June through August. Each month offers a different experience on Lake Michigan.
 
-**May — Early Season**
-The lake is waking up. Fewer crowds, lower prices. Water is still cool (55–62°F) so swimming isn't ideal, but conditions are often beautiful and the city looks stunning from the water. Perfect for corporate events and intimate charters.
+**May - Early Season**
+The lake is waking up. Fewer crowds, lower prices. Water is still cool (55-62°F) so swimming isn't ideal, but conditions are often beautiful and the city looks stunning from the water. Perfect for corporate events and intimate charters.
 
-**June — Season Kick-Off**
-The sweet spot begins. Water temperatures climb to 65–70°F, the city is buzzing, and the Playpen starts filling up on weekends. Book early — June weekends sell out fast.
+**June - Season Kick-Off**
+The sweet spot begins. Water temperatures climb to 65-70°F, the city is buzzing, and the Playpen starts filling up on weekends. Book early - June weekends sell out fast.
 
-**July — Peak Season**
+**July - Peak Season**
 The pinnacle. Water temperatures peak, the Playpen is at full capacity every weekend, and the Chicago skyline looks its absolute best in summer haze. July 4th weekend is legendary. Book 4-6 weeks in advance.
 
-**August — Still Peak**
+**August - Still Peak**
 Essentially identical to July. Late August starts to see slightly cooler evenings, which makes sunset charters especially beautiful. One of our favorite months for the golden-hour experience.
 
-**September — Hidden Gem**
+**September - Hidden Gem**
 Our honest recommendation for the best overall experience. The lake is warm from summer, crowds thin out, pricing eases, and the fall light on the skyline is breathtaking. Book 2-3 weeks ahead.
 
-**October — Last Call**
-Early October can be spectacular — crisp air, dramatic skies, and very few other boats on the water. Water starts to cool quickly after mid-month. By late October, the season is winding down.
+**October - Last Call**
+Early October can be spectacular - crisp air, dramatic skies, and very few other boats on the water. Water starts to cool quickly after mid-month. By late October, the season is winding down.
 
 **Our recommendation:**
 Weekend in June, July, or August for the full Chicago summer experience. Weekday in any of those months if you want a more private, peaceful charter at better pricing. September for the best bang for your buck.`,
@@ -219,7 +219,7 @@ Weekend in June, July, or August for the full Chicago summer experience. Weekday
     date:"May 2025",
     readTime:"3 min read",
     excerpt:"First time renting a boat in Chicago? Here's the definitive packing list so you show up prepared for the perfect day on the water.",
-    content:`Getting ready for your LDG Charters experience? Here's exactly what to bring — and what we handle for you.
+    content:`Getting ready for your LDG Charters experience? Here's exactly what to bring - and what we handle for you.
 
 **What LDG Charters provides:**
 - Cups, ice, plastic silverware, and paper towels
@@ -229,19 +229,19 @@ Weekend in June, July, or August for the full Chicago summer experience. Weekday
 **What you bring:**
 
 **Drinks & Food:**
-BYOB — bring whatever beverages your group enjoys. A cooler with ice is perfect. Food is welcome too: charcuterie boards, sandwiches, and snacks are popular. Avoid glass bottles.
+BYOB - bring whatever beverages your group enjoys. A cooler with ice is perfect. Food is welcome too: charcuterie boards, sandwiches, and snacks are popular. Avoid glass bottles.
 
 **Sun Protection:**
-Sunscreen (SPF 50+ recommended — the sun reflects off the water and intensifies). Sunglasses. A hat if you're sensitive to sun. The reflection off Lake Michigan is intense even on cloudy days.
+Sunscreen (SPF 50+ recommended - the sun reflects off the water and intensifies). Sunglasses. A hat if you're sensitive to sun. The reflection off Lake Michigan is intense even on cloudy days.
 
 **Clothing:**
-Dress for the weather but bring a light layer — it can be 5-10 degrees cooler on the water. Non-slip shoes are recommended. If you plan to swim, bring a swimsuit and towel.
+Dress for the weather but bring a light layer - it can be 5-10 degrees cooler on the water. Non-slip shoes are recommended. If you plan to swim, bring a swimsuit and towel.
 
 **Tech & Entertainment:**
-A Bluetooth speaker for music. Fully charged phones — the photo opportunities are endless. A portable charger if you're on a longer charter.
+A Bluetooth speaker for music. Fully charged phones - the photo opportunities are endless. A portable charger if you're on a longer charter.
 
 **Payment:**
-Your deposit secures the boat. Bring the remaining balance if you haven't paid in full. Tipping your captain is customary — typically 15-20% of the charter cost.
+Your deposit secures the boat. Bring the remaining balance if you haven't paid in full. Tipping your captain is customary - typically 15-20% of the charter cost.
 
 **What to leave behind:**
 Glass bottles (breakage hazard on a boat). Open flames or grills. Anything you'd be devastated to lose overboard. Pets (unless pre-approved).
@@ -294,13 +294,13 @@ export const BUFFER_MINS = 30;
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 export const fmtDate = d => {
-  if(!d) return "—";
+  if(!d) return "-";
   const[y,m,dy] = d.split("-");
   const mo = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   return `${mo[+m-1]} ${+dy}, ${y}`;
 };
 export const calcEnd = (t,h) => {
-  if(!t||!h) return "—";
+  if(!t||!h) return "-";
   const[tm,ap] = t.split(" ");
   let[hr] = tm.split(":").map(Number);
   if(ap==="PM"&&hr!==12) hr+=12;
@@ -426,7 +426,7 @@ export function WaveIntro({ onDone }) {
             <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:32,fontWeight:700,color:"#0a0f1e"}}>L</span>
           </div>
           <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontWeight:600,letterSpacing:5,color:"#fff"}}>LDG <span style={{color:"#c9a84c"}}>CHARTERS</span></div>
-          <div style={{fontSize:10,letterSpacing:4,color:"rgba(255,255,255,.3)",marginTop:8,textTransform:"uppercase"}}>Chicago · Lake Michigan</div>
+          <div style={{fontSize:10,letterSpacing:4,color:"rgba(255,255,255,.3)",marginTop:8,textTransform:"uppercase"}}>Chicago - Lake Michigan</div>
         </div>
       )}
     </div>
@@ -466,7 +466,7 @@ export function HeroSection({ startBook, setPage }) {
       // Mid buildings
       [0.115, 0.60, 0.020, 0.18],
       [0.135, 0.58, 0.018, 0.20],
-      // Willis Tower (Sears) — the tallest, center-left
+      // Willis Tower (Sears) - the tallest, center-left
       [0.155, 0.28, 0.038, 0.50],  // main shaft
       [0.163, 0.22, 0.022, 0.08],  // antenna block left
       [0.172, 0.18, 0.008, 0.12],  // left antenna
@@ -487,7 +487,7 @@ export function HeroSection({ startBook, setPage }) {
       // More mid buildings  
       [0.369, 0.55, 0.022, 0.23],
       [0.391, 0.52, 0.025, 0.26],
-      // Trump Tower — tall, distinctive
+      // Trump Tower - tall, distinctive
       [0.416, 0.30, 0.032, 0.48],
       [0.420, 0.25, 0.012, 0.07], // step
       [0.422, 0.20, 0.008, 0.07], // spire base
@@ -495,7 +495,7 @@ export function HeroSection({ startBook, setPage }) {
       // John Hancock area
       [0.450, 0.55, 0.020, 0.23],
       [0.470, 0.50, 0.022, 0.28],
-      // 875 N Michigan (Hancock) — tall with X bracing
+      // 875 N Michigan (Hancock) - tall with X bracing
       [0.492, 0.32, 0.034, 0.46],
       [0.492, 0.29, 0.005, 0.05], // left antenna
       [0.520, 0.27, 0.005, 0.07], // right antenna (taller)
@@ -883,12 +883,12 @@ export function HeroSection({ startBook, setPage }) {
     <section style={{minHeight:"100vh",position:"relative",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",textAlign:"center",padding:"130px 24px 80px",background:"#020608"}}>
       <canvas ref={canvasRef} style={{position:"absolute",inset:0,width:"100%",height:"100%",display:"block"}}/>
       <div style={{position:"relative",zIndex:10,maxWidth:780}} className="fu">
-        <div style={{fontSize:11,letterSpacing:5,color:"#c9a84c",textTransform:"uppercase",marginBottom:18,fontWeight:500}}>Chicago · Lake Michigan · 31st Street Harbor</div>
+        <div style={{fontSize:11,letterSpacing:5,color:"#c9a84c",textTransform:"uppercase",marginBottom:18,fontWeight:500}}>Chicago - Lake Michigan - 31st Street Harbor</div>
         <h1 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(46px,8vw,88px)",fontWeight:300,lineHeight:1.06,marginBottom:22,letterSpacing:-1,textShadow:"0 2px 30px rgba(0,0,0,.9)"}}>
           Experience<br/><span style={{fontStyle:"italic",color:"#c9a84c"}}>Lake Michigan</span><br/>Like Never Before
         </h1>
         <p style={{fontSize:16,color:"rgba(255,255,255,.85)",fontWeight:300,maxWidth:480,margin:"0 auto 36px",lineHeight:1.8,textShadow:"0 1px 10px rgba(0,0,0,.9)"}}>
-          Whether you are celebrating something big or just want to unwind — our charters are designed to give you the ultimate Chicago experience.
+          Whether you are celebrating something big or just want to unwind - our charters are designed to give you the ultimate Chicago experience.
         </p>
         <div style={{display:"flex",gap:14,justifyContent:"center",flexWrap:"wrap",marginBottom:52}}>
           <button className="btn-g" onClick={()=>startBook()} style={{background:"#c9a84c",color:"#0a0f1e",border:"none",padding:"14px 36px",borderRadius:4,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600,letterSpacing:2,textTransform:"uppercase",boxShadow:"0 8px 28px rgba(201,168,76,.4)",transition:"all .22s"}}>Book Your Charter</button>
@@ -956,7 +956,7 @@ export function SigCanvas({ label, onSigned }) {
   );
 }
 
-const SC={pending:{bg:"rgba(255,190,50,.15)",border:"rgba(255,190,50,.4)",color:"#ffc832"},confirmed:{bg:"rgba(58,170,102,.15)",border:"rgba(58,170,102,.4)",color:"#3aaa66"},paid:{bg:"rgba(74,158,255,.15)",border:"rgba(74,158,255,.4)",color:"#4a9eff"},cancelled:{bg:"rgba(255,80,80,.15)",border:"rgba(255,80,80,.4)",color:"#ff5050"}};
+export const SC={pending:{bg:"rgba(255,190,50,.15)",border:"rgba(255,190,50,.4)",color:"#ffc832"},confirmed:{bg:"rgba(58,170,102,.15)",border:"rgba(58,170,102,.4)",color:"#3aaa66"},paid:{bg:"rgba(74,158,255,.15)",border:"rgba(74,158,255,.4)",color:"#4a9eff"},cancelled:{bg:"rgba(255,80,80,.15)",border:"rgba(255,80,80,.4)",color:"#ff5050"},zelle_pending:{bg:"rgba(107,26,255,.15)",border:"rgba(107,26,255,.4)",color:"#9b6dff"},deposit_pending:{bg:"rgba(255,150,50,.15)",border:"rgba(255,150,50,.4)",color:"#ffaa44"}};
 export function Badge({status}){const s=SC[status]||SC.pending;return <span style={{background:s.bg,border:`1px solid ${s.border}`,color:s.color,padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:600,textTransform:"capitalize",whiteSpace:"nowrap"}}>{status||"pending"}</span>;}
 
 // ── PDF GENERATOR ─────────────────────────────────────────────────────────────
@@ -991,7 +991,7 @@ export function generatePDF(booking) {
   ${[
     ["Vessel", vessel||""],
     ["Charter Date", fmtDate(charterDate)||""],
-    ["Charter Window", startTime&&endTime?`${startTime} – ${endTime}`:""],
+    ["Charter Window", startTime&&endTime?`${startTime} - ${endTime}`:""],
     ["Duration", duration||""],
     ["Destination", destination||""],
     ["Departure", "31st Street Harbor, Chicago IL"],
@@ -1032,7 +1032,7 @@ export function generatePDF(booking) {
   <text x="${W-200}" y="808" font-family="Arial,sans-serif" font-size="8" fill="#888">LDG Charters Representative</text>
 
   <rect width="${W}" height="6" y="${H-6}" fill="${navy}"/>
-  <text x="${W/2}" y="${H-14}" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" fill="#888" letter-spacing="1">LDG CHARTERS · 31st Street Harbor, Chicago IL · 708-846-3132 · ldg-charters.vercel.app</text>
+  <text x="${W/2}" y="${H-14}" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" fill="#888" letter-spacing="1">LDG CHARTERS - 31st Street Harbor, Chicago IL - 708-846-3132 - ldg-charters.vercel.app</text>
 </svg>`;
 
   const blob = new Blob([svg], {type:"image/svg+xml"});

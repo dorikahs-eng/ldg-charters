@@ -65,7 +65,7 @@ export function AdminDashboard() {
           user_id:"jsEvKIVZ10ZQqt-4r",
           template_params:{
             ...params,
-            subject_override:`REMINDER: Your LDG Charter is in 48 hours — ${fmtDate(isCharter?b.charterDate:b.eventDate)}`,
+            subject_override:`REMINDER: Your LDG Charter is in 48 hours - ${fmtDate(isCharter?b.charterDate:b.eventDate)}`,
             message_type:"reminder",
           }
         })
@@ -171,11 +171,11 @@ export function AdminDashboard() {
                       <tr className="arow" onClick={()=>setExpanded(expanded===b.id?null:b.id)} style={{borderBottom:"1px solid rgba(255,255,255,.05)",transition:"background .15s"}}>
                         <td style={{padding:"14px 16px"}}><div style={{fontWeight:600,fontSize:14}}>{b.clientName}</div><div style={{fontSize:11,color:"rgba(255,255,255,.4)",marginTop:2}}>{b.clientEmail}</div></td>
                         <td style={{padding:"14px 16px",fontSize:13,color:"rgba(255,255,255,.7)"}}>{tab==="dock"?b.celebration:`${b.vessel||""}`}<div style={{fontSize:11,color:"rgba(255,255,255,.35)",marginTop:1}}>{b.duration||b.celebration}</div></td>
-                        <td style={{padding:"14px 16px"}}><div style={{fontSize:13}}>{fmtDate(tab==="dock"?b.eventDate:b.charterDate)}</div><div style={{fontSize:11,color:"rgba(255,255,255,.35)",marginTop:1}}>{b.startTime} – {b.endTime}</div></td>
+                        <td style={{padding:"14px 16px"}}><div style={{fontSize:13}}>{fmtDate(tab==="dock"?b.eventDate:b.charterDate)}</div><div style={{fontSize:11,color:"rgba(255,255,255,.35)",marginTop:1}}>{b.startTime} - {b.endTime}</div></td>
                         <td style={{padding:"14px 16px"}}><div style={{fontSize:14,fontWeight:600,color:"#c9a84c"}}>{fmtCurrency(b.totalPrice)}</div><div style={{fontSize:11,color:"rgba(255,255,255,.3)",marginTop:1}}>{b.paymentOption==="full"?"Full":"Deposit"}</div></td>
                         <td style={{padding:"14px 16px"}}>
                           <select value={b.paymentStatus||"unpaid"} onClick={e=>e.stopPropagation()} onChange={e=>updateField(b.id,"paymentStatus",e.target.value)} style={{background:"#0d1b2a",border:"1px solid rgba(255,255,255,.15)",color:"#fff",padding:"5px 8px",borderRadius:6,fontSize:11,cursor:"pointer",fontFamily:"inherit"}}>
-                            <option value="unpaid">Unpaid</option><option value="deposit_paid">Deposit Paid</option><option value="paid">Paid Full</option><option value="refunded">Refunded</option>
+                            <option value="unpaid">Unpaid</option><option value="zelle_pending">Zelle Pending</option><option value="deposit_paid">Deposit Paid</option><option value="paid">Paid Full</option><option value="refunded">Refunded</option>
                           </select>
                         </td>
                         <td style={{padding:"14px 16px"}}>
@@ -194,9 +194,9 @@ export function AdminDashboard() {
                         <tr style={{background:"rgba(201,168,76,.03)",borderBottom:"2px solid rgba(201,168,76,.15)"}}>
                           <td colSpan={7} style={{padding:"22px 28px"}}>
                             <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:20}}>
-                              <div><div style={{fontSize:10,letterSpacing:2,color:"#c9a84c",textTransform:"uppercase",marginBottom:9}}>Client</div>{[["Name",b.clientName],["Email",b.clientEmail],["Phone",b.clientPhone],["Host",b.hostName||"—"]].map(([k,v])=><div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:13,padding:"5px 0",borderBottom:"1px solid rgba(255,255,255,.05)"}}><span style={{color:"rgba(255,255,255,.4)"}}>{k}</span><span>{v}</span></div>)}</div>
+                              <div><div style={{fontSize:10,letterSpacing:2,color:"#c9a84c",textTransform:"uppercase",marginBottom:9}}>Client</div>{[["Name",b.clientName],["Email",b.clientEmail],["Phone",b.clientPhone],["Host",b.hostName||"-"]].map(([k,v])=><div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:13,padding:"5px 0",borderBottom:"1px solid rgba(255,255,255,.05)"}}><span style={{color:"rgba(255,255,255,.4)"}}>{k}</span><span>{v}</span></div>)}</div>
                               <div><div style={{fontSize:10,letterSpacing:2,color:"#c9a84c",textTransform:"uppercase",marginBottom:9}}>Booking</div>
-                                {(tab==="dock"?[["Celebration",b.celebration],["Date",fmtDate(b.eventDate)],["Time",`${b.startTime} – ${b.endTime}`],["Duration",b.duration]]:[["Vessel",b.vessel],["Date",fmtDate(b.charterDate)],["Time",`${b.startTime} – ${b.endTime}`],["Destination",b.destination],["Duration",b.duration]]).map(([k,v])=><div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:13,padding:"5px 0",borderBottom:"1px solid rgba(255,255,255,.05)"}}><span style={{color:"rgba(255,255,255,.4)"}}>{k}</span><span>{v}</span></div>)}
+                                {(tab==="dock"?[["Celebration",b.celebration],["Date",fmtDate(b.eventDate)],["Time",`${b.startTime} - ${b.endTime}`],["Duration",b.duration]]:[["Vessel",b.vessel],["Date",fmtDate(b.charterDate)],["Time",`${b.startTime} - ${b.endTime}`],["Destination",b.destination],["Duration",b.duration]]).map(([k,v])=><div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:13,padding:"5px 0",borderBottom:"1px solid rgba(255,255,255,.05)"}}><span style={{color:"rgba(255,255,255,.4)"}}>{k}</span><span>{v}</span></div>)}
                               </div>
                               <div><div style={{fontSize:10,letterSpacing:2,color:"#c9a84c",textTransform:"uppercase",marginBottom:9}}>Financials</div>
                                 {[["Charter Fee",fmtCurrency(b.totalPrice)],["Deposit","$500.00"],["Balance",fmtCurrency(b.balance||0)]].map(([k,v])=><div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:13,padding:"5px 0",borderBottom:"1px solid rgba(255,255,255,.05)"}}><span style={{color:"rgba(255,255,255,.4)"}}>{k}</span><span style={{color:k==="Charter Fee"?"#c9a84c":"#fff"}}>{v}</span></div>)}
