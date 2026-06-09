@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { collection, addDoc, getDocs, query, where, serverTimestamp } from "firebase/firestore";
-import { fmtDate, calcEnd, isTimeBlocked, G, CELEBRATIONS, DOCK_DURATIONS, DOCK_RATE, DOCK_DEPOSIT, BUFFER_MINS, db, SmartCal, TIMES, SigCanvas } from './App';
+import { fmtDate, calcEnd, isTimeBlocked, G, CELEBRATIONS, DOCK_DURATIONS, DOCK_RATE, DOCK_DEPOSIT, BUFFER_MINS, db, SmartCal, TIMES, SigCanvas, fetchGCalBlocks, isTimeBlockedByGCal, isDateBlockedOnGCal, isTooSoonToBook } from './App';
 
 export function AtTheDockPage({ onBack }) {
   const [step, setStep] = useState(1);
@@ -12,6 +12,7 @@ export function AtTheDockPage({ onBack }) {
   const [cSig, setCSig] = useState(null);
   const [saving, setSaving] = useState(false);
   const [zelleAck, setZelleAck] = useState(false);
+  const [gcalBlocks, setGcalBlocks] = useState([]);
   const [saved, setSaved] = useState(false);
   const [err, setErr] = useState("");
   const [bookedSlots, setBookedSlots] = useState([]);
@@ -23,7 +24,7 @@ export function AtTheDockPage({ onBack }) {
   const canNext = () => {
     if (step === 1) return !!celeb;
     if (step === 2) return !!dur;
-    if (step === 3) return !!date && !!time;
+    if (step === 3) return !!date && !!time && !isDateBlockedOnGCal(gcalBlocks) && !isTooSoonToBook(date, time);
     if (step === 4) return !!(info.name && info.email && info.phone);
     if (step === 5) return !!cSig;
     return true;
@@ -43,9 +44,11 @@ export function AtTheDockPage({ onBack }) {
       } catch (e) { console.error(e); }
     };
     load();
+    // Fetch Google Calendar blocks
+    fetchGCalBlocks(date).then(blocks => setGcalBlocks(blocks));
   }, [date]);
 
-  const timeBlocked = t => dur ? isTimeBlocked(t, dur.hours, bookedSlots) : false;
+  const timeBlocked = t => dur ? (isTimeBlocked(t, dur.hours, bookedSlots) || isTimeBlockedByGCal(t, dur.hours, gcalBlocks) || isTooSoonToBook(date, t)) : false;
   const inp = { width: "100%", background: "rgba(255,255,255,.04)", border: "1px solid rgba(255,255,255,.14)", borderRadius: 8, padding: "12px 16px", color: "#fff", fontFamily: "'DM Sans',sans-serif", fontSize: 14, outline: "none" };
 
   const save = async () => {
