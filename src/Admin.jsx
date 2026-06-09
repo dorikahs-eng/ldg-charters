@@ -28,14 +28,23 @@ export function AdminLogin({ onLogin }) {
 
 // ── ADMIN DASHBOARD ───────────────────────────────────────────────────────────
 export function AdminDashboard() {
+  const [crashError,setCrashError]=useState(null);
   const [user,setUser]=useState(null); const [authed,setAuthed]=useState(false); const [checking,setChecking]=useState(true);
   const [bookings,setBookings]=useState([]); const [loading,setLoading]=useState(false); const [expanded,setExpanded]=useState(null);
   const [filter,setFilter]=useState("all"); const [search,setSearch]=useState(""); const [tab,setTab]=useState("charters");
 
-  useEffect(()=>{const unsub=onAuthStateChanged(auth,u=>{setUser(u);setAuthed(!!u);setChecking(false);if(u)loadData("charters");});return unsub;},[]);
+  useEffect(()=>{
+    try {
+      const unsub=onAuthStateChanged(auth,u=>{setUser(u);setAuthed(!!u);setChecking(false);if(u)loadData("charters");});
+      return unsub;
+    } catch(e) {
+      setCrashError("useEffect error: " + e.message + "\n\nStack: " + e.stack);
+      setChecking(false);
+    }
+  },[]);
   useEffect(()=>{if(authed)loadData(tab);},[tab]);
 
-  const loadData=async(t)=>{setLoading(true);try{const col=t==="dock"?"dock_bookings":"bookings";const q=query(collection(db,col),orderBy("createdAt","desc"));const snap=await getDocs(q);setBookings(snap.docs.map(d=>({id:d.id,...d.data()})));}catch(e){console.error(e);}setLoading(false);};
+  const loadData=async(t)=>{setLoading(true);try{const col=t==="dock"?"dock_bookings":"bookings";const q=query(collection(db,col),orderBy("createdAt","desc"));const snap=await getDocs(q);setBookings(snap.docs.map(d=>({id:d.id,...d.data()})));}catch(e){console.error("loadData error:",e);setCrashError("loadData error: "+e.message);}setLoading(false);};
   const updateField=async(id,field,value)=>{try{const col=tab==="dock"?"dock_bookings":"bookings";await updateDoc(doc(db,col,id),{[field]:value});setBookings(prev=>prev.map(b=>b.id===id?{...b,[field]:value}:b));}catch(e){console.error(e);}};
   const handleLogout=async()=>{await signOut(auth);setAuthed(false);};
 
@@ -101,6 +110,7 @@ export function AdminDashboard() {
     }
   };
 
+  if(crashError)return <div style={{background:"#0a0f1e",minHeight:"100vh",padding:40,color:"#ff5050",fontFamily:"monospace",fontSize:13,whiteSpace:"pre-wrap"}}><div style={{color:"#c9a84c",fontSize:18,marginBottom:16,fontFamily:"sans-serif"}}>Admin Error — Copy this and send to support:</div>{String(crashError)}</div>;
   if(checking)return <div style={{background:"#0a0f1e",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",color:"#c9a84c",fontFamily:"'DM Sans',sans-serif"}}>Loading...</div>;
   if(!authed)return <AdminLogin onLogin={()=>{setAuthed(true);loadData("charters");}}/>;
 
