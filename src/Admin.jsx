@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, orderBy, where, serverTimestamp } from "firebase/firestore";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
-import { fmtDate, calcEnd, fmtCurrency, G, DEPOSIT, BUFFER_MINS, db, auth, Badge } from './App';
+import { collection, getDocs, doc, updateDoc, query, orderBy, where } from "firebase/firestore";
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
+import { fmtDate, calcEnd, fmtCurrency, G, DEPOSIT, BUFFER_MINS, db, auth, Badge, generatePDF } from './App';
 // ── AT THE DOCK BOOKING ───────────────────────────────────────────────────────
 
 // ── ADMIN LOGIN ───────────────────────────────────────────────────────────────
