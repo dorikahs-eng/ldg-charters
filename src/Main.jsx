@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { collection, addDoc, getDocs, query, where, serverTimestamp, orderBy, doc, updateDoc } from "firebase/firestore";
+import { collection, addDoc, getDocs, query, where, serverTimestamp, orderBy, doc, updateDoc } from 'firebase/firestore';
+import { fmtDate, calcEnd, fmtCurrency, isTimeBlocked, G, BOATS, DURATIONS, DESTINATIONS, TIMES, CELEBRATIONS, DOCK_DURATIONS, TERMS, BLOG_POSTS, BOAT_RATE, DEPOSIT, DOCK_RATE, DOCK_DEPOSIT, BUFFER_MINS, P, SC, WaveIntro, HeroSection, SmartCal, SigCanvas, Badge, generatePDF, db } from './App';
 import { AtTheDockPage } from './Dock';
 import { AdminDashboard } from './Admin';
 function BlogPage({ setPage, post, setPost }) {
@@ -249,7 +250,7 @@ function LDGChartersApp() {
   const saveBooking=async(chosenPayOpt)=>{
     setSaving(true);setSaveErr("");
     try{
-      const bookingData={clientName:info.name,clientEmail:info.email,clientPhone:info.phone,hostName:host.name||null,hostEmail:host.email||null,vessel:boat.name,vesselId:boat.id,duration:`${dur.label} (${dur.hours} hrs)`,hours:dur.hours,destination:dest.name,charterDate:date,startTime:time,endTime:endT,boatFee:total,totalPrice:total,deposit:DEPOSIT,balance,paymentOption:chosenPayOpt,paymentStatus:"zelle_pending",bookingStatus:"pending",clientSignature:cSig,adminNotes:"",createdAt:serverTimestamp()};
+      const bookingData={clientName:info.name,clientEmail:info.email,clientPhone:info.phone,hostName:host.name||null,hostEmail:host.email||null,vessel:boat.name,vesselId:boat.id,duration:`${dur.label} (${dur.hours} hrs)`,hours:dur.hours,destination:dest.name,charterDate:date,startTime:time,endTime:endT,boatFee:total,totalPrice:chosenPayOpt==="free"?0:discountedTotal,deposit:chosenPayOpt==="free"?0:discountedDeposit,balance:chosenPayOpt==="free"?0:discountedBalance,paymentOption:chosenPayOpt,couponCode:couponApplied?.code||null,paymentStatus:chosenPayOpt==="free"?"test_booking":"zelle_pending",bookingStatus:"pending",clientSignature:cSig,adminNotes:"",createdAt:serverTimestamp()};
       const docRef = await addDoc(collection(db,"bookings"),bookingData);
       await sendEmails(chosenPayOpt);
       // Auto-generate PDF
