@@ -77,7 +77,7 @@ export const DESTINATIONS = [
   {id:"sunset",    name:"Sunset Cruise",          icon:"🌅", desc:"Time your departure for golden hour as the skyline ignites in amber and gold.", photo:P.sunset},
 ];
 
-export const TIMES = ["8:00 AM","9:00 AM","10:00 AM","11:00 AM","12:00 PM","1:00 PM","2:00 PM","3:00 PM","4:00 PM","5:00 PM","6:00 PM","7:00 PM"];
+export const TIMES = ["10:00 AM","11:00 AM","12:00 PM","1:00 PM","2:00 PM","3:00 PM","4:00 PM","5:00 PM","6:00 PM","7:00 PM","8:00 PM"];
 
 export const CELEBRATIONS = [
   {id:"birthday",   name:"Birthday",               icon:"🎂", desc:"Make their special day unforgettable on the water."},
@@ -291,6 +291,75 @@ export const DEPOSIT = 500;
 export const DOCK_RATE = 150;
 export const DOCK_DEPOSIT = 50;
 export const BUFFER_MINS = 30;
+export const GCAL_API_KEY = "AIzaSyCWrQ2qxggSHAb2A2paisSi_sYW38pgpP0";
+export const GCAL_ID = "charterldg@gmail.com";
+export const BOOKING_START_HOUR = 10;  // 10am
+export const BOOKING_END_HOUR = 22;   // 10pm
+export const ADVANCE_HOURS = 12;       // must book 12hrs ahead
+
+// Fetch blocked times from Google Calendar for a given date
+export async function fetchGCalBlocks(dateStr) {
+  try {
+    const dayStart = new Date(dateStr + "T00:00:00");
+    const dayEnd   = new Date(dateStr + "T23:59:59");
+    const tMin = dayStart.toISOString();
+    const tMax = dayEnd.toISOString();
+    const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(GCAL_ID)}/events?key=${GCAL_API_KEY}&timeMin=${tMin}&timeMax=${tMax}&singleEvents=true&orderBy=startTime`;
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.items || []).map(evt => ({
+      startTime: evt.start?.dateTime ? new Date(evt.start.dateTime).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",hour12:true}) : null,
+      endTime:   evt.end?.dateTime   ? new Date(evt.end.dateTime).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",hour12:true})   : null,
+      allDay:    !!evt.start?.date && !evt.start?.dateTime,
+      title:     evt.summary || "Blocked",
+    }));
+  } catch(e) {
+    console.error("GCal fetch error:", e);
+    return [];
+  }
+}
+
+// Check if a date is fully blocked on Google Calendar (all-day event)
+export function isDateBlockedOnGCal(gcalBlocks) {
+  return gcalBlocks.some(e => e.allDay);
+}
+
+// Check if a time slot conflicts with Google Calendar events
+export function isTimeBlockedByGCal(timeStr, durationHours, gcalBlocks) {
+  if (!timeStr) return false;
+  const parse = t => {
+    const [time, period] = t.split(" ");
+    let [h, m] = time.split(":").map(Number);
+    if (period === "PM" && h !== 12) h += 12;
+    if (period === "AM" && h === 12) h = 0;
+    return h * 60 + (m || 0);
+  };
+  const slotStart = parse(timeStr);
+  const slotEnd   = slotStart + durationHours * 60 + BUFFER_MINS;
+  return gcalBlocks.filter(e => !e.allDay && e.startTime && e.endTime).some(e => {
+    const evtStart = parse(e.startTime) - BUFFER_MINS;
+    const evtEnd   = parse(e.endTime)   + BUFFER_MINS;
+    return slotStart < evtEnd && slotEnd > evtStart;
+  });
+}
+
+// Check if booking is within 12-hour advance window
+export function isTooSoonToBook(dateStr, timeStr) {
+  if (!dateStr || !timeStr) return false;
+  const parse = t => {
+    const [time, period] = t.split(" ");
+    let [h, m] = time.split(":").map(Number);
+    if (period === "PM" && h !== 12) h += 12;
+    if (period === "AM" && h === 12) h = 0;
+    return h * 60 + (m || 0);
+  };
+  const [year, month, day] = dateStr.split("-").map(Number);
+  const slotMins = parse(timeStr);
+  const slotDate = new Date(year, month - 1, day, Math.floor(slotMins/60), slotMins%60);
+  const nowPlus12 = new Date(Date.now() + ADVANCE_HOURS * 60 * 60 * 1000);
+  return slotDate <= nowPlus12;
+}
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 export const fmtDate = d => {
@@ -909,34 +978,106 @@ export function HeroSection({ startBook, setPage }) {
 // ── SMART CALENDAR ────────────────────────────────────────────────────────────
 export function SmartCal({ sel, onSel, vesselId, hours, bookedSlots, loadingSlots }) {
   const today = new Date();
-  const [view,setView] = useState(new Date(today.getFullYear(),today.getMonth(),1));
-  const MO = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-  const days = new Date(view.getFullYear(),view.getMonth()+1,0).getDate();
-  const fd = new Date(view.getFullYear(),view.getMonth(),1).getDay();
-  const cells = [...Array(fd).fill(null),...Array.from({length:days},(_,i)=>i+1)];
-  const isPast = d => new Date(view.getFullYear(),view.getMonth(),d) < new Date(today.getFullYear(),today.getMonth(),today.getDate());
-  const isSel = d => { if(!sel||!d)return false;const[y,m,dy]=sel.split("-").map(Number);return d===dy&&view.getMonth()+1===m&&view.getFullYear()===y; };
-  const isToday = d => d===today.getDate()&&view.getMonth()===today.getMonth()&&view.getFullYear()===today.getFullYear();
-  const pick = d => { if(!d||isPast(d))return; onSel(`${view.getFullYear()}-${String(view.getMonth()+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`); };
+  const [view, setView] = useState({y:today.getFullYear(),m:today.getMonth()});
+  const [gcalBlocks, setGcalBlocks] = useState([]);
+  const [gcalLoading, setGcalLoading] = useState(false);
+
+  // Fetch Google Calendar blocks when selected date changes
+  useEffect(() => {
+    if (!sel) return;
+    setGcalLoading(true);
+    fetchGCalBlocks(sel).then(blocks => {
+      setGcalBlocks(blocks);
+      setGcalLoading(false);
+    });
+  }, [sel]);
+
+  const daysInMonth = (y,m) => new Date(y,m+1,0).getDate();
+  const firstDay    = (y,m) => new Date(y,m,1).getDay();
+
+  const isTodayDate = (y,m,d) => y===today.getFullYear()&&m===today.getMonth()&&d===today.getDate();
+  const isPast      = (y,m,d) => new Date(y,m,d) < new Date(today.getFullYear(),today.getMonth(),today.getDate());
+  const toStr       = (y,m,d) => `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+
+  const isDateBlocked = (y,m,d) => {
+    // Blocked if all times within booking window would be too soon (12hr advance)
+    const dateStr = toStr(y,m,d);
+    const allTimes = TIMES;
+    const allTooSoon = allTimes.every(t => isTooSoonToBook(dateStr, t));
+    return allTooSoon;
+  };
+
+  const isGcalDayBlocked = (y,m,d) => {
+    if (sel === toStr(y,m,d)) return isDateBlockedOnGCal(gcalBlocks);
+    return false; // Only check selected date for now (would need per-date fetching for full month)
+  };
+
+  const prev = () => setView(v => v.m===0?{y:v.y-1,m:11}:{y:v.y,m:v.m-1});
+  const next = () => setView(v => v.m===11?{y:v.y+1,m:0}:{y:v.y,m:v.m+1});
+
+  const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+  const NAVY = "#0a0f1e";
+  const GOLD = "#c9a84c";
 
   return (
-    <div style={{background:"rgba(255,255,255,.03)",border:"1px solid rgba(201,168,76,.25)",borderRadius:12,padding:18,display:"inline-block",maxWidth:"100%",overflowX:"auto"}}>
+    <div style={{background:"rgba(255,255,255,.04)",border:"1px solid rgba(201,168,76,.2)",borderRadius:14,padding:20,display:"inline-block",maxWidth:"100%",overflowX:"auto"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
-        <button onClick={()=>setView(new Date(view.getFullYear(),view.getMonth()-1,1))} style={{background:"none",border:"1px solid rgba(201,168,76,.3)",color:"#c9a84c",width:30,height:30,borderRadius:"50%",cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center"}}>‹</button>
-        <span style={{color:"#fff",fontFamily:"'Cormorant Garamond',serif",fontSize:17,fontWeight:600}}>{MO[view.getMonth()]} {view.getFullYear()}</span>
-        <button onClick={()=>setView(new Date(view.getFullYear(),view.getMonth()+1,1))} style={{background:"none",border:"1px solid rgba(201,168,76,.3)",color:"#c9a84c",width:30,height:30,borderRadius:"50%",cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center"}}>›</button>
+        <button onClick={prev} style={{background:"rgba(255,255,255,.08)",border:"none",color:"#fff",width:28,height:28,borderRadius:"50%",cursor:"pointer",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center"}}>‹</button>
+        <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:17,fontWeight:600,color:"#fff"}}>{monthNames[view.m]} {view.y}</div>
+        <button onClick={next} style={{background:"rgba(255,255,255,.08)",border:"none",color:"#fff",width:28,height:28,borderRadius:"50%",cursor:"pointer",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center"}}>›</button>
       </div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(7,minmax(30px,34px))",gap:2}}>
-        {["S","M","T","W","T","F","S"].map((d,i)=><div key={i} style={{textAlign:"center",color:"#c9a84c",fontSize:10,fontWeight:700,padding:"5px 0"}}>{d}</div>)}
-        {cells.map((d,i)=>(
-          <div key={i} onClick={()=>pick(d)} style={{textAlign:"center",padding:"7px 0",borderRadius:6,fontSize:12,cursor:d&&!isPast(d)?"pointer":"default",background:isSel(d)?"#c9a84c":isToday(d)?"rgba(201,168,76,.15)":"transparent",color:!d?"transparent":isPast(d)?"#333":isSel(d)?"#0a0f1e":"#fff",fontWeight:isSel(d)?700:400,border:isToday(d)&&!isSel(d)?"1px solid rgba(201,168,76,.4)":"1px solid transparent",transition:"all .15s"}}>{d||""}</div>
+        {["S","M","T","W","T","F","S"].map((d,i)=>(
+          <div key={i} style={{textAlign:"center",fontSize:9,color:"rgba(255,255,255,.35)",padding:"2px 0",letterSpacing:1}}>{d}</div>
         ))}
+        {Array.from({length:firstDay(view.y,view.m)}).map((_,i)=><div key={"e"+i}/>)}
+        {Array.from({length:daysInMonth(view.y,view.m)},(_,i)=>i+1).map(d=>{
+          const dateStr = toStr(view.y,view.m,d);
+          const isSelected = sel===dateStr;
+          const past = isPast(view.y,view.m,d);
+          const tooSoon = isDateBlocked(view.y,view.m,d);
+          const gcalBlocked = sel===dateStr && isDateBlockedOnGCal(gcalBlocks);
+          const disabled = past || tooSoon || gcalBlocked;
+          const isToday = isTodayDate(view.y,view.m,d);
+          return (
+            <div key={d} onClick={()=>!disabled&&onSel(dateStr)}
+              title={gcalBlocked?"Blocked on calendar":tooSoon?"Must book 12hrs in advance":""}
+              style={{
+                width:34,height:34,display:"flex",alignItems:"center",justifyContent:"center",
+                borderRadius:6,fontSize:12,cursor:disabled?"not-allowed":"pointer",
+                background:isSelected?"#c9a84c":gcalBlocked?"rgba(255,80,80,.15)":tooSoon?"rgba(255,150,0,.08)":"transparent",
+                color:isSelected?"#0a0f1e":disabled?"rgba(255,255,255,.2)":isToday?"#c9a84c":"rgba(255,255,255,.85)",
+                border:isSelected?"none":isToday?"1px solid rgba(201,168,76,.4)":gcalBlocked?"1px solid rgba(255,80,80,.3)":"1px solid transparent",
+                fontWeight:isSelected||isToday?700:400,
+                position:"relative",
+              }}>
+              {d}
+              {gcalBlocked&&<span style={{position:"absolute",bottom:2,left:"50%",transform:"translateX(-50%)",width:3,height:3,borderRadius:"50%",background:"rgba(255,80,80,.6)"}}/>}
+              {tooSoon&&!past&&<span style={{position:"absolute",bottom:2,left:"50%",transform:"translateX(-50%)",width:3,height:3,borderRadius:"50%",background:"rgba(255,150,0,.5)"}}/>}
+            </div>
+          );
+        })}
+      </div>
+      {sel&&gcalLoading&&<div style={{marginTop:10,fontSize:11,color:"rgba(255,255,255,.4)",textAlign:"center"}}>Checking calendar...</div>}
+      {sel&&!gcalLoading&&isDateBlockedOnGCal(gcalBlocks)&&(
+        <div style={{marginTop:10,padding:"8px 12px",background:"rgba(255,80,80,.1)",border:"1px solid rgba(255,80,80,.25)",borderRadius:6,fontSize:11,color:"rgba(255,130,110,.9)",textAlign:"center"}}>
+          This date is unavailable — blocked on the charter calendar.
+        </div>
+      )}
+      {sel&&!gcalLoading&&!isDateBlockedOnGCal(gcalBlocks)&&gcalBlocks.length>0&&(
+        <div style={{marginTop:10,padding:"8px 12px",background:"rgba(255,150,50,.08)",border:"1px solid rgba(255,150,50,.2)",borderRadius:6,fontSize:11,color:"rgba(255,180,80,.8)"}}>
+          ⚠ {gcalBlocks.length} calendar event{gcalBlocks.length>1?"s":""} on this date — some times may be unavailable.
+        </div>
+      )}
+      <div style={{marginTop:10,display:"flex",flexWrap:"wrap",gap:8,fontSize:10,color:"rgba(255,255,255,.3)"}}>
+        <span>🟡 = within 12hr window</span>
+        <span style={{color:"rgba(255,80,80,.5)"}}>🔴 = calendar blocked</span>
       </div>
     </div>
   );
 }
 
-// ── SIGNATURE CANVAS ──────────────────────────────────────────────────────────
 export function SigCanvas({ label, onSigned }) {
   const ref = useRef(null); const drawing = useRef(false); const [has, setHas] = useState(false);
   const xy=(e,c)=>{const r=c.getBoundingClientRect(),sx=c.width/r.width,sy=c.height/r.height;if(e.touches)return{x:(e.touches[0].clientX-r.left)*sx,y:(e.touches[0].clientY-r.top)*sy};return{x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sy};};
