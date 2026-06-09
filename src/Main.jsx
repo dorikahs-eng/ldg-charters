@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { collection, addDoc, getDocs, query, where, serverTimestamp, orderBy, doc, updateDoc } from 'firebase/firestore';
-import { fmtDate, calcEnd, fmtCurrency, isTimeBlocked, G, BOATS, DURATIONS, DESTINATIONS, TIMES, CELEBRATIONS, DOCK_DURATIONS, TERMS, BLOG_POSTS, BOAT_RATE, DEPOSIT, DOCK_RATE, DOCK_DEPOSIT, BUFFER_MINS, P, SC, WaveIntro, HeroSection, SmartCal, SigCanvas, Badge, generatePDF, db } from './App';
+import { fmtDate, calcEnd, fmtCurrency, isTimeBlocked, G, BOATS, DURATIONS, DESTINATIONS, TIMES, CELEBRATIONS, DOCK_DURATIONS, TERMS, BLOG_POSTS, BOAT_RATE, DEPOSIT, DOCK_RATE, DOCK_DEPOSIT, BUFFER_MINS, P, SC, WaveIntro, HeroSection, SmartCal, SigCanvas, Badge, generatePDF, db, isTooSoonToBook, isTimeBlockedByGCal, fetchGCalBlocks, isDateBlockedOnGCal } from './App';
 import { AtTheDockPage } from './Dock';
 import { AdminDashboard } from './Admin';
 function BlogPage({ setPage, post, setPost }) {
@@ -177,6 +177,8 @@ function LDGChartersApp() {
   const [couponErr,setCouponErr]=useState("");
   const [bookedSlots,setBookedSlots]=useState([]);
   const [loadingSlots,setLoadingSlots]=useState(false);
+  const [gcalBlocks,setGcalBlocks]=useState([]);
+  const [gcalLoading,setGcalLoading]=useState(false);
 
   const total = dur ? dur.hours * BOAT_RATE : 0;
   const balance = total - DEPOSIT;
@@ -187,7 +189,7 @@ function LDGChartersApp() {
     if(step===1)return!!boat;
     if(step===2)return!!dur;
     if(step===3)return!!dest;
-    if(step===4)return!!date&&!!time&&!isTimeBlocked(time,dur?.hours||0,bookedSlots);
+    if(step===4)return!!date&&!!time&&!isTimeBlocked(time,dur?.hours||0,bookedSlots)&&!isTimeBlockedByGCal(time,dur?.hours||0,gcalBlocks)&&!isTooSoonToBook(date,time)&&!isDateBlockedOnGCal(gcalBlocks);
     if(step===5)return!!(info.name&&info.email&&info.phone);
     if(step===6)return!!cSig;
     return true;
@@ -210,6 +212,16 @@ function LDGChartersApp() {
     };
     load();
   },[date,boat]);
+
+  // Fetch Google Calendar blocks when date changes
+  useEffect(()=>{
+    if(!date) return;
+    setGcalLoading(true);
+    fetchGCalBlocks(date).then(blocks=>{
+      setGcalBlocks(blocks);
+      setGcalLoading(false);
+    });
+  },[date]);
 
   const EMAILJS_SERVICE_ID="service_0se585c";
   const EMAILJS_PUBLIC_KEY="jsEvKIVZ10ZQqt-4r";
@@ -613,14 +625,19 @@ function LDGChartersApp() {
             <SmartCal sel={date} onSel={setDate} vesselId={boat?.id} hours={dur?.hours||2} bookedSlots={bookedSlots} loadingSlots={loadingSlots}/>
             <div>
               <div style={{fontSize:10,letterSpacing:2,color:"#c9a84c",textTransform:"uppercase",marginBottom:6}}>Departure Time</div>
-              {loadingSlots&&<div style={{fontSize:12,color:"rgba(255,255,255,.4)",marginBottom:12}}>Checking availability...</div>}
+              {(loadingSlots||gcalLoading)&&<div style={{fontSize:12,color:"rgba(255,255,255,.4)",marginBottom:12}}>Checking availability...</div>}
+              {isDateBlockedOnGCal(gcalBlocks)&&<div style={{fontSize:12,color:"rgba(255,80,80,.7)",marginBottom:12,padding:"6px 10px",background:"rgba(255,80,80,.08)",border:"1px solid rgba(255,80,80,.2)",borderRadius:6}}>This date is blocked on the charter calendar.</div>}
               {!loadingSlots&&date&&bookedSlots.length>0&&<div style={{fontSize:12,color:"rgba(255,190,50,.7)",marginBottom:12}}>⚠️ Some times unavailable for {fmtDate(date)}</div>}
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(100px,1fr))",gap:8}}>
                 {TIMES.map(t=>{
-                  const blocked = dur ? isTimeBlocked(t,dur.hours,bookedSlots) : false;
+                  const fbBlocked = dur ? isTimeBlocked(t,dur.hours,bookedSlots) : false;
+                  const gcBlocked = isTimeBlockedByGCal(t,dur?.hours||2,gcalBlocks);
+                  const tooSoon   = isTooSoonToBook(date,t);
+                  const blocked   = fbBlocked||gcBlocked||tooSoon;
+                  const reason    = fbBlocked?"Booked":gcBlocked?"Calendar":tooSoon?"<12hrs":"";
                   return (
                     <button key={t} disabled={blocked||!date} onClick={()=>setTime(t)} style={{padding:11,border:time===t?"1.5px solid #c9a84c":blocked?"1px solid rgba(255,80,80,.2)":"1px solid rgba(255,255,255,.1)",borderRadius:8,background:time===t?"rgba(201,168,76,.1)":blocked?"rgba(255,80,80,.04)":"rgba(255,255,255,.02)",color:time===t?"#c9a84c":blocked?"rgba(255,80,80,.4)":"rgba(255,255,255,.65)",cursor:blocked||!date?"not-allowed":"pointer",fontSize:12,fontFamily:"'DM Sans',sans-serif",fontWeight:time===t?600:400,transition:"all .2s",textAlign:"center"}}>
-                      {t}{blocked&&<span style={{display:"block",fontSize:8,color:"rgba(255,80,80,.5)",marginTop:2}}>Booked</span>}
+                      {t}{blocked&&<span style={{display:"block",fontSize:8,color:"rgba(255,80,80,.5)",marginTop:2}}>{reason}</span>}
                     </button>
                   );
                 })}
