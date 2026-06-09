@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { fmtDate, calcEnd, fmtCurrency, isTimeBlocked, G, BOATS, DURATIONS, DESTINATIONS, TIMES, CELEBRATIONS, DOCK_DURATIONS, TERMS, BLOG_POSTS, BOAT_RATE, DEPOSIT, DOCK_RATE, DOCK_DEPOSIT, BUFFER_MINS, P, SC, WaveIntro, HeroSection, SmartCal, SigCanvas, Badge, generatePDF } from './App';
+import { collection, addDoc, getDocs, query, where, serverTimestamp, orderBy, doc, updateDoc } from "firebase/firestore";
 import { AtTheDockPage } from './Dock';
 import { AdminDashboard } from './Admin';
 function BlogPage({ setPage, post, setPost }) {
