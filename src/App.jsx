@@ -1173,7 +1173,7 @@ export function generatePDF(booking) {
   <text x="${W-200}" y="808" font-family="Arial,sans-serif" font-size="8" fill="#888">LDG Charters Representative</text>
 
   <rect width="${W}" height="6" y="${H-6}" fill="${navy}"/>
-  <text x="${W/2}" y="${H-14}" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" fill="#888" letter-spacing="1">LDG CHARTERS - 31st Street Harbor, Chicago IL - 708-846-3132 - ldg-charters.vercel.app</text>
+  <text x="${W/2}" y="${H-14}" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" fill="#888" letter-spacing="1">LDG CHARTERS - 31st Street Harbor, Chicago IL - 708-846-3132 - ldgcharterchicago.com</text>
 </svg>`;
 
   const blob = new Blob([svg], {type:"image/svg+xml"});
