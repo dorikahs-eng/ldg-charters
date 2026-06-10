@@ -201,7 +201,56 @@ export function AdminDashboard() {
     }catch(e){console.error(e);}
   };
 
-  const handleLogout=async()=>{await signOut(auth);setAuthed(false);};
+  const authorizeGCal = async () => {
+    setGcalLoading(true);
+    setGcalMsg("");
+    try {
+      await loadGISScript();
+      tokenClientRef.current = window.google.accounts.oauth2.initTokenClient({
+        client_id: GCAL_CLIENT_ID,
+        scope: GCAL_SCOPE,
+        callback: (resp) => {
+          if(resp?.error){setGcalMsg("Auth failed: "+resp.error);setGcalLoading(false);return;}
+          setGcalToken(resp.access_token);
+          setGcalMsg("Google Calendar connected");
+          setGcalLoading(false);
+          setTimeout(()=>setGcalMsg(""),3000);
+        },
+      });
+      tokenClientRef.current.requestAccessToken({prompt:"consent"});
+    } catch(e) {
+      setGcalMsg("Auth error: "+(e?.message||String(e)));
+      setGcalLoading(false);
+    }
+  };
+
+  const addToGCal = async (b) => {
+    if(!gcalToken){
+      const link = makeGCalLink(b);
+      if(link) window.open(link,"_blank","noopener,noreferrer");
+      return;
+    }
+    setGcalLoading(true);
+    setGcalMsg("Adding to calendar...");
+    try {
+      const event = buildCalendarEvent(b);
+      const res = await fetch(
+        `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(GCAL_CALENDAR_ID)}/events`,
+        {method:"POST",headers:{Authorization:`Bearer ${gcalToken}`,"Content-Type":"application/json"},body:JSON.stringify(event)}
+      );
+      if(!res.ok){
+        const body = await res.text();
+        throw new Error(body||`Calendar API error ${res.status}`);
+      }
+      setGcalMsg("Added to Google Calendar!");
+      setTimeout(()=>setGcalMsg(""),4000);
+    } catch(e) {
+      setGcalMsg("Error: "+(e?.message||String(e)));
+    }
+    setGcalLoading(false);
+  };
+
+    const handleLogout=async()=>{await signOut(auth);setAuthed(false);};
 
   if(checking)return(
     <div style={{background:"#0a0f1e",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",color:"#c9a84c",fontFamily:"sans-serif",fontSize:18}}>
