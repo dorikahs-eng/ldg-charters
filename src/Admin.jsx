@@ -84,6 +84,10 @@ function buildCalendarEvent(b) {
   const start = parseTime(b.startTime);
   const end   = parseTime(b.endTime);
 
+  if(!start || !end) {
+    throw new Error("Booking is missing a valid start or end time.");
+  }
+
   const pad = n => String(n).padStart(2, "0");
   const startISO = `${y}-${pad(mo)}-${pad(d)}T${pad(start.h)}:${pad(start.m)}:00`;
   const endISO   = `${y}-${pad(mo)}-${pad(d)}T${pad(end.h)}:${pad(end.m)}:00`;
@@ -201,7 +205,7 @@ export function AdminDashboard() {
     }catch(e){console.error(e);}
   };
 
-  const authorizeGCal = async () => {
+    const authorizeGCal = async () => {
     setGcalLoading(true);
     setGcalMsg("");
     try {
@@ -209,15 +213,20 @@ export function AdminDashboard() {
       tokenClientRef.current = window.google.accounts.oauth2.initTokenClient({
         client_id: GCAL_CLIENT_ID,
         scope: GCAL_SCOPE,
+        hint: "charterldg@gmail.com",
         callback: (resp) => {
-          if(resp?.error){setGcalMsg("Auth failed: "+resp.error);setGcalLoading(false);return;}
+          if(resp?.error){ setGcalMsg("Auth failed: "+resp.error); setGcalLoading(false); return; }
+          if(!resp?.access_token){ setGcalMsg("No access token returned."); setGcalLoading(false); return; }
           setGcalToken(resp.access_token);
           setGcalMsg("Google Calendar connected");
           setGcalLoading(false);
           setTimeout(()=>setGcalMsg(""),3000);
         },
       });
-      tokenClientRef.current.requestAccessToken({prompt:"consent"});
+      tokenClientRef.current.requestAccessToken({
+        prompt: "select_account consent",
+        hint: "charterldg@gmail.com",
+      });
     } catch(e) {
       setGcalMsg("Auth error: "+(e?.message||String(e)));
       setGcalLoading(false);
@@ -297,8 +306,8 @@ export function AdminDashboard() {
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:12}}>
               <div>
                 <div style={{fontWeight:600,fontSize:15}}>{b.clientName}</div>
-                <div style={{fontSize:12,color:"rgba(255,255,255,.45)",marginTop:3}}>{b.clientEmail} · {b.clientPhone}</div>
-                <div style={{fontSize:13,color:"rgba(255,255,255,.6)",marginTop:6}}>{b.vessel||b.celebration} · {fmtDate(b.charterDate||b.eventDate)} · {b.startTime}–{b.endTime}</div>
+                <div style={{fontSize:12,color:"rgba(255,255,255,.45)",marginTop:3}}>{b.clientEmail} - {b.clientPhone}</div>
+                <div style={{fontSize:13,color:"rgba(255,255,255,.6)",marginTop:6}}>{b.vessel||b.celebration} - {fmtDate(b.charterDate||b.eventDate)} - {b.startTime}–{b.endTime}</div>
               </div>
               <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
                 <Badge status={b.paymentStatus||"unpaid"}/>
