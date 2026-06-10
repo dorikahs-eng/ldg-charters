@@ -3,6 +3,117 @@ import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebas
 import { collection, getDocs, doc, updateDoc, query, orderBy, where } from "firebase/firestore";
 import { db, auth, fmtDate, fmtCurrency, G, Badge, generatePDF } from './App';
 
+// Generate Google Calendar event link for a booking
+function makeGCalLink(b) {
+  const isCharter = !!b.charterDate;
+  const dateStr = isCharter ? b.charterDate : b.eventDate;
+  const [y,mo,d] = dateStr.split('-').map(Number);
+  
+  const parseTime = t => {
+    if(!t) return null;
+    const [time, period] = t.split(' ');
+    let [h, m] = time.split(':').map(Number);
+    if(period==='PM' && h!==12) h+=12;
+    if(period==='AM' && h===12) h=0;
+    return {h, m};
+  };
+
+  const start = parseTime(b.startTime);
+  const end   = parseTime(b.endTime);
+  if(!start||!end) return null;
+
+  const fmt = (y,mo,d,h,m) =>
+    `${y}${String(mo).padStart(2,'0')}${String(d).padStart(2,'0')}T${String(h).padStart(2,'0')}${String(m).padStart(2,'0')}00`;
+
+  const startStr = fmt(y,mo,d,start.h,start.m);
+  const endStr   = fmt(y,mo,d,end.h,end.m);
+
+  const title = isCharter
+    ? `LDG Charter - ${b.vessel} - ${b.clientName}`
+    : `LDG Dock - ${b.celebration} - ${b.clientName}`;
+
+  const details = isCharter
+    ? `Guest: ${b.clientName}\nPhone: ${b.clientPhone}\nEmail: ${b.clientEmail}\nVessel: ${b.vessel}\nDestination: ${b.destination}\nDuration: ${b.duration}\nTotal: $${b.totalPrice}\nPayment: ${b.paymentStatus}`
+    : `Guest: ${b.clientName}\nPhone: ${b.clientPhone}\nEmail: ${b.clientEmail}\nCelebration: ${b.celebration}\nDuration: ${b.duration}\nDeposit: $${b.depositAmount||50}`;
+
+  const location = 'D-Dock, 31st Street Harbor, 3100 S Lake Shore Drive, Chicago IL';
+
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: title,
+    dates: `${startStr}/${endStr}`,
+    details,
+    location,
+    add: 'charterldg@gmail.com',
+  });
+
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+
+const GCAL_CLIENT_ID = import.meta.env.VITE_GCAL_CLIENT_ID || "103047972244-gdr54qmo74v4tlm9rt3k4o8rsn7pjm27.apps.googleusercontent.com";
+const GCAL_SCOPE = "https://www.googleapis.com/auth/calendar.events";
+const GCAL_CALENDAR_ID = "charterldg@gmail.com";
+
+// Load Google Identity Services script dynamically
+function loadGISScript() {
+  return new Promise((resolve) => {
+    if (window.google?.accounts?.oauth2) { resolve(); return; }
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.onload = resolve;
+    document.head.appendChild(script);
+  });
+}
+
+// Build Google Calendar event object from booking
+function buildCalendarEvent(b) {
+  const isCharter = !!b.charterDate;
+  const dateStr   = isCharter ? b.charterDate : b.eventDate;
+  const [y,mo,d]  = dateStr.split("-").map(Number);
+
+  const parseTime = t => {
+    if (!t) return null;
+    const [time, period] = t.split(" ");
+    let [h, m] = time.split(":").map(Number);
+    if (period === "PM" && h !== 12) h += 12;
+    if (period === "AM" && h === 12) h = 0;
+    return { h, m };
+  };
+
+  const start = parseTime(b.startTime);
+  const end   = parseTime(b.endTime);
+
+  const pad = n => String(n).padStart(2, "0");
+  const startISO = `${y}-${pad(mo)}-${pad(d)}T${pad(start.h)}:${pad(start.m)}:00`;
+  const endISO   = `${y}-${pad(mo)}-${pad(d)}T${pad(end.h)}:${pad(end.m)}:00`;
+
+  const title = isCharter
+    ? `LDG Charter - ${b.vessel} - ${b.clientName}`
+    : `LDG At The Dock - ${b.celebration} - ${b.clientName}`;
+
+  const notes = isCharter
+    ? `GUEST: ${b.clientName}\nPHONE: ${b.clientPhone}\nEMAIL: ${b.clientEmail}\nVESSEL: ${b.vessel}\nDESTINATION: ${b.destination}\nDURATION: ${b.duration}\nTOTAL: $${b.totalPrice}\nPAYMENT: ${b.paymentStatus}`
+    : `GUEST: ${b.clientName}\nPHONE: ${b.clientPhone}\nEMAIL: ${b.clientEmail}\nCELEBRATION: ${b.celebration}\nDURATION: ${b.duration}\nDEPOSIT: $${b.depositAmount || 50}`;
+
+  return {
+    summary: title,
+    location: "D-Dock, 31st Street Harbor, 3100 S Lake Shore Drive, Chicago IL 60616",
+    description: notes,
+    start: { dateTime: startISO, timeZone: "America/Chicago" },
+    end:   { dateTime: endISO,   timeZone: "America/Chicago" },
+    attendees: [{ email: GCAL_CALENDAR_ID }],
+    reminders: {
+      useDefault: false,
+      overrides: [
+        { method: "email",  minutes: 1440 }, // 24hr
+        { method: "popup",  minutes: 60 },
+      ],
+    },
+  };
+}
+
+
 export function AdminLogin({ onLogin }) {
   const [email,setEmail]=useState("");
   const [pass,setPass]=useState("");
@@ -51,6 +162,10 @@ export function AdminDashboard() {
   const [loading,setLoading]=useState(false);
   const [tab,setTab]=useState("charters");
   const [error,setError]=useState(null);
+  const [gcalToken,setGcalToken]=useState(null);
+  const [gcalLoading,setGcalLoading]=useState(false);
+  const [gcalMsg,setGcalMsg]=useState("");
+  const tokenClientRef=useRef(null);
 
   useEffect(()=>{
     try {
@@ -118,6 +233,9 @@ export function AdminDashboard() {
           <button key={id} onClick={()=>setTab(id)} style={{padding:"8px 18px",borderRadius:20,border:"1px solid",borderColor:tab===id?"#c9a84c":"rgba(255,255,255,.15)",background:tab===id?"rgba(201,168,76,.12)":"transparent",color:tab===id?"#c9a84c":"rgba(255,255,255,.45)",cursor:"pointer",fontSize:13}}>{l}</button>
         ))}
         <button onClick={()=>loadData(tab)} style={{marginLeft:"auto",background:"rgba(201,168,76,.1)",border:"1px solid rgba(201,168,76,.3)",color:"#c9a84c",padding:"8px 16px",borderRadius:8,cursor:"pointer",fontSize:13}}>Refresh</button>
+        {!gcalToken&&<button onClick={authorizeGCal} style={{background:"rgba(74,158,255,.1)",border:"1px solid rgba(74,158,255,.3)",color:"#4a9eff",padding:"8px 16px",borderRadius:8,cursor:"pointer",fontSize:13}}>Connect Google Calendar</button>}
+        {gcalToken&&<span style={{fontSize:12,color:"#3aaa66",padding:"8px 12px",background:"rgba(58,170,102,.1)",border:"1px solid rgba(58,170,102,.3)",borderRadius:8}}>Google Calendar Connected</span>}
+        {gcalMsg&&<span style={{fontSize:12,color:"#c9a84c",padding:"8px 12px"}}>{gcalMsg}</span>}
       </div>
 
       {loading&&<div style={{color:"rgba(255,255,255,.4)",padding:40,textAlign:"center"}}>Loading bookings...</div>}
@@ -152,6 +270,7 @@ export function AdminDashboard() {
                   <option value="completed">Completed</option>
                 </select>
                 <button onClick={()=>generatePDF(b)} style={{background:"rgba(201,168,76,.1)",border:"1px solid rgba(201,168,76,.3)",color:"#c9a84c",padding:"5px 12px",borderRadius:5,cursor:"pointer",fontSize:11}}>PDF</button>
+                <button onClick={()=>addToGCal(b)} disabled={gcalLoading} style={{background:"rgba(74,158,255,.1)",border:"1px solid rgba(74,158,255,.3)",color:"#4a9eff",padding:"5px 12px",borderRadius:5,cursor:"pointer",fontSize:11}}>📅 {gcalToken?"Add to Calendar":"Connect Calendar"}</button>
               </div>
             </div>
             <div style={{marginTop:10,fontSize:13,color:"#c9a84c",fontWeight:600}}>{fmtCurrency(b.totalPrice||0)}</div>
