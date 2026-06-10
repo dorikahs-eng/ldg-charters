@@ -252,7 +252,34 @@ function LDGChartersApp() {
   const discountedBalance = Math.max(0, discountedTotal - discountedDeposit);
 
   const sendEmails=async(chosenPayOpt)=>{
-    const params={customer_name:info.name,customer_email:info.email,customer_phone:info.phone,vessel:boat.name,charter_date:fmtDate(date),start_time:time,end_time:endT,duration:`${dur.label} (${dur.hours} hrs)`,destination:dest.name,total_price:`$${total.toLocaleString()}.00`,balance:`$${balance.toLocaleString()}.00`,payment_option:chosenPayOpt==="full"?"Full Payment":"Deposit Only ($500)",captain_name:"Arranged Separately - Call 708-846-3132"};
+    const arrivalInfo = `PARKING: 3100 S Lake Shore Drive - parking is on the corner.
+
+YOUR BOAT IS AT: D-Dock
+
+DIRECTIONS TO YOUR BOAT:
+Cross the highway onto the park. The beach will be in front of you. Pier 31 (restaurant and bar) will be on your left. Continue walking - when you reach the boat area, make a right and follow the dock until you reach Dock D.
+
+IMPORTANT: Charter times are STRICT. Please arrive 15-20 minutes early. Late arrivals do not extend your charter window.`;
+
+    const params={
+      customer_name:info.name,
+      customer_email:info.email,
+      customer_phone:info.phone,
+      vessel:boat.name,
+      charter_date:fmtDate(date),
+      start_time:time,
+      end_time:endT,
+      duration:`${dur.label} (${dur.hours} hrs)`,
+      destination:dest.name,
+      total_price:`$${total.toLocaleString()}.00`,
+      balance:`$${balance.toLocaleString()}.00`,
+      payment_option:chosenPayOpt==="full"?"Full Payment":"Deposit Only ($500)",
+      arrival_info:arrivalInfo,
+      parking:"3100 S Lake Shore Drive - parking on the corner",
+      dock_location:"D-Dock",
+      directions:"Cross the highway onto the park. Pier 31 restaurant will be on your left. Continue to the boat area, turn right, walk to Dock D.",
+      arrive_early:"Please arrive 15-20 minutes early. Charter times are STRICT.",
+    };
     try{
       await fetch("https://api.emailjs.com/api/v1.0/email/send",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({service_id:EMAILJS_SERVICE_ID,template_id:TEMPLATE_CUSTOMER,user_id:EMAILJS_PUBLIC_KEY,template_params:params})});
       await fetch("https://api.emailjs.com/api/v1.0/email/send",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({service_id:EMAILJS_SERVICE_ID,template_id:TEMPLATE_ADMIN,user_id:EMAILJS_PUBLIC_KEY,template_params:params})});

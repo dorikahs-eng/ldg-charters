@@ -63,7 +63,24 @@ export function AtTheDockPage({ onBack }) {
       });
       await fetch("https://api.emailjs.com/api/v1.0/email/send", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ service_id: "service_0se585c", template_id: "template_swbrijc", user_id: "jsEvKIVZ10ZQqt-4r", template_params: { customer_name: info.name, customer_email: info.email, customer_phone: info.phone, vessel: "At The Dock", charter_date: fmtDate(date), start_time: time, end_time: endT, duration: dur.label, destination: celeb.name, total_price: `$${total}`, balance: `$${total}`, payment_option: `At The Dock - $${DOCK_DEPOSIT} deposit` } })
+        body: JSON.stringify({ service_id: "service_0se585c", template_id: "template_swbrijc", user_id: "jsEvKIVZ10ZQqt-4r", template_params: {
+          customer_name: info.name,
+          customer_email: info.email,
+          customer_phone: info.phone,
+          vessel: "At The Dock",
+          charter_date: fmtDate(date),
+          start_time: time,
+          end_time: endT,
+          duration: dur.label,
+          destination: celeb.name,
+          total_price: `$${total}`,
+          balance: `$${total}`,
+          payment_option: `At The Dock - $${DOCK_DEPOSIT} deposit`,
+          parking: "3100 S Lake Shore Drive - parking on the corner",
+          dock_location: "D-Dock",
+          directions: "Cross the highway onto the park. Pier 31 restaurant will be on your left. Continue to the boat area, turn right, walk to Dock D.",
+          arrive_early: "Please arrive 15-20 minutes early. Times are STRICT.",
+        } })
       });
       setSaved(true);
     } catch (e) { setErr("Could not save. Please call 708-846-3132."); }
